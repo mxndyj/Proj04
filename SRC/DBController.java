@@ -16,7 +16,7 @@ public class DBController {
     //UNIQUE ID getter using sequences for each tablename
     private int getNextId(String table) throws SQLException {
         String seq = table.toUpperCase() + "_SEQ";
-        String sql = "SELECT mandyjiang." + seq + ".NEXTVAL FROM DUAL";
+        String sql = "select mandyjiang." + seq + ".NEXTVAL FROM DUAL";
         try (Statement s = dbconn.createStatement();
              ResultSet rs = s.executeQuery(sql)) {
             rs.next();
@@ -27,7 +27,7 @@ public class DBController {
     //  Member
     public int addMember(String name, String phone, String email, String dob, String emergency) throws SQLException {
         int id = getNextId("Member");
-        String sql = "INSERT INTO mandyjiang.Member(member_id,name,phone,email,date_of_birth,emergency_contact) VALUES(?,?,?,?,?,?)";
+        String sql = "insert into mandyjiang.Member(member_id,name,phone,email,date_of_birth,emergency_contact) VALUES(?,?,?,?,?,?)";
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
             p.setInt(1, id);
             p.setString(2, name);
@@ -42,7 +42,7 @@ public class DBController {
     }
 
     public void updateMember(int id, String phone, String email, String emergency) throws SQLException {
-        String sql = "UPDATE mandyjiang.Member SET phone=COALESCE(?,phone), email=COALESCE(?,email), emergency_contact=COALESCE(?,emergency_contact) WHERE member_id=?";
+        String sql = "update mandyjiang.Member SET phone=COALESCE(?,phone), email=COALESCE(?,email), emergency_contact=COALESCE(?,emergency_contact) where member_id=?";
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
             p.setString(1, phone);
             p.setString(2, email);
@@ -59,8 +59,8 @@ public class DBController {
     public boolean deleteMember(int id) throws SQLException {
         // 1. Check for active ski passes
         String checkPass = 
-          "SELECT 1 FROM mandyjiang.SkiPass " +
-          "WHERE member_id=? AND (remaining_uses>0 OR expiration_date > SYSTIMESTAMP)";
+          "select 1 FROM mandyjiang.SkiPass " +
+          "where member_id=? AND (remaining_uses>0 OR expiration_date > SYSTIMESTAMP)";
         try (PreparedStatement cp = dbconn.prepareStatement(checkPass)) {
             cp.setInt(1, id);
             if (cp.executeQuery().next()) {
@@ -69,7 +69,7 @@ public class DBController {
         }
     
         // // 2. Check for open equipment rentals
-        // String checkRental = "SELECT 1 FROM mandyjiang.Rental WHERE member_id=? AND return_status='OUT'";
+        // String checkRental = "select 1 FROM mandyjiang.Rental where member_id=? AND return_status='OUT'";
         // try (PreparedStatement cr = dbconn.prepareStatement(checkRental)) {
         //     cr.setInt(1, id);
         //     if (cr.executeQuery().next()) {
@@ -78,7 +78,7 @@ public class DBController {
         // }
     
         // // 3. Check for unused lesson sessions
-        // String checkLesson = "SELECT 1 FROM mandyjiang.LessonPurchase WHERE member_id=? AND remaining_sessions>0";
+        // String checkLesson = "select 1 FROM mandyjiang.LessonPurchase where member_id=? AND remaining_sessions>0";
         // try (PreparedStatement cl = dbconn.prepareStatement(checkLesson)) {
         //     cl.setInt(1, id);
         //     if (cl.executeQuery().next()) {
@@ -90,7 +90,7 @@ public class DBController {
 
         //  Delete member
         try (PreparedStatement dm = dbconn.prepareStatement(
-                 "DELETE FROM mandyjiang.Member WHERE member_id=?"
+                 "DELETE FROM mandyjiang.Member where member_id=?"
              )) {
             dm.setInt(1, id);
             return dm.executeUpdate() == 1;
@@ -100,7 +100,7 @@ public class DBController {
     //  Ski Pass
     public int addPass(int mid, String type, int total, String exp, double price) throws SQLException {
         int id = getNextId("SkiPass");
-        String sql = "INSERT INTO mandyjiang.SkiPass(pass_id,member_id,type,total_uses,remaining_uses,purchase_time,expiration_date,price) VALUES(?,?,?,?,?,SYSTIMESTAMP,?,?)";
+        String sql = "insert into mandyjiang.SkiPass(pass_id,member_id,type,total_uses,remaining_uses,purchase_time,expiration_date,price) VALUES(?,?,?,?,?,SYSTIMESTAMP,?,?)";
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
             p.setInt(1, id);
             p.setInt(2, mid);
@@ -118,7 +118,7 @@ public class DBController {
 
 
     public void adjustPassUses(int pid, int uses) throws SQLException {
-        String sql = "UPDATE mandyjiang.SkiPass SET remaining_uses=? WHERE pass_id=?";
+        String sql = "update mandyjiang.SkiPass SET remaining_uses=? where pass_id=?";
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
             p.setInt(1, uses);
             p.setInt(2, pid);
@@ -133,8 +133,8 @@ public class DBController {
     public boolean deletePass(int pid) throws SQLException {
         // 1. Check that the pass exists and is expired/unused
         try (PreparedStatement chk = dbconn.prepareStatement(
-                 "SELECT remaining_uses, expiration_date "
-               + "FROM mandyjiang.SkiPass WHERE pass_id = ?")) {
+                 "select remaining_uses, expiration_date "
+               + "FROM mandyjiang.SkiPass where pass_id = ?")) {
             chk.setInt(1, pid);
             try (ResultSet rs = chk.executeQuery()) {
                 if (!rs.next())
@@ -150,15 +150,15 @@ public class DBController {
     
         // 2. Archive & delete 
         String archiveSql = 
-          "INSERT INTO mandyjiang.SkiPass_Archive(SPARCHIVE_ID,PASS_ID,MEMBER_ID,TYPE,TOTAL_USES,REMAINING_USES,"
+          "insert into mandyjiang.SkiPass_Archive(SPARCHIVE_ID,PASS_ID,MEMBER_ID,TYPE,TOTAL_USES,REMAINING_USES,"
         + "PURCHASE_TIME,EXPIRATION_DATE,PRICE,ARCHIVED_TIME) "
-        + "SELECT mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,"
+        + "select mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,"
         + "pass_id,member_id,type,total_uses,remaining_uses,"
         + "purchase_time,expiration_date,price,SYSTIMESTAMP "
-        + "FROM mandyjiang.SkiPass WHERE pass_id = ?";
+        + "FROM mandyjiang.SkiPass where pass_id = ?";
     
         String deleteSql = 
-          "DELETE FROM mandyjiang.SkiPass WHERE pass_id = ?";
+          "DELETE FROM mandyjiang.SkiPass where pass_id = ?";
     
         try (PreparedStatement a = dbconn.prepareStatement(archiveSql);
              PreparedStatement d = dbconn.prepareStatement(deleteSql)) {
@@ -174,26 +174,26 @@ public class DBController {
         liftName = liftName.toUpperCase();
         //  lift exists
         try (PreparedStatement lv = dbconn.prepareStatement(
-                "SELECT 1 FROM mandyjiang.Lift WHERE lift_name=?")) {
+                "select 1 FROM mandyjiang.Lift where lift_name=?")) {
             lv.setString(1, liftName);
             if (!lv.executeQuery().next()) throw new IllegalArgumentException("Lift does not exist.");
         }
         // deduct use
         try (PreparedStatement u = dbconn.prepareStatement(
-                "UPDATE mandyjiang.SkiPass SET remaining_uses = remaining_uses - 1 " +
-                "WHERE pass_id = ? AND remaining_uses > 0")) {
+                "update mandyjiang.SkiPass SET remaining_uses = remaining_uses - 1 " +
+                "where pass_id = ? AND remaining_uses > 0")) {
             u.setInt(1, pid);
             if (u.executeUpdate() == 0) throw new IllegalStateException("No uses left on pass.");
         }
         // insert into entry log
         try (PreparedStatement l = dbconn.prepareStatement(
-                "INSERT INTO mandyjiang.Entry(lift_name,pass_id,entrance_time) VALUES(?,?,SYSTIMESTAMP)")) {
+                "insert into mandyjiang.Entry(lift_name,pass_id,entrance_time) VALUES(?,?,SYSTIMESTAMP)")) {
             l.setString(1, liftName); l.setInt(2, pid); l.executeUpdate();
         }
         // fetch remaining uses
         int left;
         try (PreparedStatement q = dbconn.prepareStatement(
-                "SELECT remaining_uses FROM mandyjiang.SkiPass WHERE pass_id=?")) {
+                "select remaining_uses FROM mandyjiang.SkiPass where pass_id=?")) {
             q.setInt(1, pid);
             try (ResultSet rs = q.executeQuery()) { rs.next(); left = rs.getInt(1); }
         }
