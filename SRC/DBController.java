@@ -201,6 +201,19 @@ public class DBController {
         return left;
     }
 
+    // TODO implement these.
+    public int addRentalRecord(int skiPassID, int equipmentID) {
+    }
+
+    public int deleteRentalRecord(int rentalID) {
+    }
+
+    public int addEquipmentRecord(String type, int size, String name) {
+    }
+
+    public int deleteEquipmentRecord(int equipmentID) {
+    }
+
 
     // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
 }
