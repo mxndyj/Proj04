@@ -68,8 +68,8 @@ public class DBController {
             }
         }
     
-        // // 2. Check for open equipment rentals
-        // String checkRental = "select 1 FROM mandyjiang.Rental where member_id=? AND return_status='OUT'";
+        // // 2. Check for open equipment rentals update tables names later
+        // String checkRental = "select 1 FROM Rental where member_id=? AND return_status='OUT'";
         // try (PreparedStatement cr = dbconn.prepareStatement(checkRental)) {
         //     cr.setInt(1, id);
         //     if (cr.executeQuery().next()) {
@@ -78,7 +78,7 @@ public class DBController {
         // }
     
         // // 3. Check for unused lesson sessions
-        // String checkLesson = "select 1 FROM mandyjiang.LessonPurchase where member_id=? AND remaining_sessions>0";
+        // String checkLesson = "select 1 FROM LessonPurchase where member_id=? AND remaining_sessions>0";
         // try (PreparedStatement cl = dbconn.prepareStatement(checkLesson)) {
         //     cl.setInt(1, id);
         //     if (cl.executeQuery().next()) {
@@ -98,22 +98,40 @@ public class DBController {
     }
 
     //  Ski Pass
-    public int addPass(int mid, String type, int total, String exp, double price) throws SQLException {
+    public int addPass(int mid, String type, String exp) throws SQLException {
         int id = getNextId("SkiPass");
-        String sql = "insert into mandyjiang.SkiPass(pass_id,member_id,type,total_uses,remaining_uses,purchase_time,expiration_date,price) VALUES(?,?,?,?,?,SYSTIMESTAMP,?,?)";
-        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+
+        int defaultUses;
+        double defaultPrice;
+        String lookupSql = """ 
+        SELECT total_uses, price FROM mandyjiang.PassType WHERE type = ?
+        """;
+        try (PreparedStatement lookup = dbconn.prepareStatement(lookupSql)) {
+            lookup.setString(1, type);
+            try (ResultSet rs = lookup.executeQuery()) {
+                if (!rs.next()) {
+                    throw new SQLException("Unknown pass type: " + type);
+                }
+                defaultUses  = rs.getInt("total_uses");
+                defaultPrice = rs.getDouble("price");
+            }
+        }
+        System.out.printf("FYI: That %s pass costs $%.2f and grants %d uses.%n",type, defaultPrice, defaultUses);
+
+        String insertSql = """
+        Insert into mandyjiang.SkiPass(pass_id, member_id, type,remaining_uses, purchase_time, expiration_date) 
+        VALUES(?, ?, ?, ?, SYSTIMESTAMP, ?)
+        """;
+        try (PreparedStatement p = dbconn.prepareStatement(insertSql)) {
             p.setInt(1, id);
             p.setInt(2, mid);
             p.setString(3, type);
-            p.setInt(4, total);
-            p.setInt(5, total);
-            p.setDate(6, Date.valueOf(exp));
-            p.setDouble(7, price);
+            p.setInt(4, defaultUses);
+            p.setDate(5, Date.valueOf(exp));
             p.executeUpdate();
-        
         }
-        return id;
 
+        return id;
     }
 
 
@@ -133,8 +151,7 @@ public class DBController {
     public boolean deletePass(int pid) throws SQLException {
         // 1. Check that the pass exists and is expired/unused
         try (PreparedStatement chk = dbconn.prepareStatement(
-                 "select remaining_uses, expiration_date "
-               + "FROM mandyjiang.SkiPass where pass_id = ?")) {
+            "select remaining_uses, expiration_date FROM mandyjiang.SkiPass where pass_id = ?")) {
             chk.setInt(1, pid);
             try (ResultSet rs = chk.executeQuery()) {
                 if (!rs.next())
@@ -149,14 +166,18 @@ public class DBController {
         }
     
         // 2. Archive & delete 
-        String archiveSql = 
-          "insert into mandyjiang.SkiPass_Archive(SPARCHIVE_ID,PASS_ID,MEMBER_ID,TYPE,TOTAL_USES,REMAINING_USES,"
-        + "PURCHASE_TIME,EXPIRATION_DATE,PRICE,ARCHIVED_TIME) "
-        + "select mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,"
-        + "pass_id,member_id,type,total_uses,remaining_uses,"
-        + "purchase_time,expiration_date,price,SYSTIMESTAMP "
-        + "FROM mandyjiang.SkiPass where pass_id = ?";
-    
+        String archiveSql = """
+            INSERT INTO mandyjiang.SkiPass_Archive(
+            SPARCHIVE_ID, PASS_ID, MEMBER_ID, TYPE,
+            REMAINING_USES, PURCHASE_TIME, EXPIRATION_DATE, ARCHIVED_TIME
+            )
+            select mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,
+                pass_id,member_id,type,remaining_uses,
+                purchase_time,expiration_date,SYSTIMESTAMP
+            FROM mandyjiang.SkiPass
+            WHERE pass_id = ?
+            """;
+                
         String deleteSql = 
           "DELETE FROM mandyjiang.SkiPass where pass_id = ?";
     

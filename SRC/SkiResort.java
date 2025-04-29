@@ -121,11 +121,9 @@ public class SkiResort {
     private void addPass() {
         System.out.print("Member ID: "); int mid = readInt();
         System.out.print("Type (1-DAY,2-DAY,4-DAY,SEASON): "); String type = in.nextLine().toUpperCase();
-        System.out.print("Total uses: "); int uses = readInt();
         System.out.print("Expiration (YYYY-MM-DD): "); String exp = in.nextLine();
-        System.out.print("Price: "); double price = Double.parseDouble(in.nextLine());
         try {
-            int newPassID=db.addPass(mid, type, uses, exp, price);
+            int newPassID=db.addPass(mid, type, exp);
             System.out.println("Ski pass added. New Pass ID: " + newPassID + "\n");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage() + "\n");
