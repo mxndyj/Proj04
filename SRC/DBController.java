@@ -14,6 +14,7 @@ public class DBController {
     }
 
     //UNIQUE ID getter using sequences for each tablename
+
     private int getNextId(String table,String owner) throws SQLException {
         String seq=table.toUpperCase() + "_SEQ";
         String sql="select " + owner + "." + seq + ".NEXTVAL FROM DUAL";
@@ -25,6 +26,7 @@ public class DBController {
     }
 
     //  Member
+
     public int addMember(String name,String phone,String email,String dob,String emergency) throws SQLException {
         int id=getNextId("Member","mandyjiang");
         String sql="insert into mandyjiang.Member(member_id,name,phone,email,date_of_birth,emergency_contact) VALUES(?,?,?,?,?,?)";
@@ -98,6 +100,7 @@ public class DBController {
     }
 
     //  Ski Pass
+
     public int addPass(int mid,String type,String exp) throws SQLException {
         int id=getNextId("SkiPass","mandyjiang");
 
@@ -218,6 +221,47 @@ public class DBController {
         return left;
     }
 
+    // TODO implement these.
+    // public int addRentalRecord(int skiPassID, int equipmentID) {
+    // }
+    //
+    // public int deleteRentalRecord(int rentalID) {
+    // }
+    //
+    // public int addEquipmentRecord(String type, int size, String name) {
+    // }
+    //
+    // public int deleteEquipmentRecord(int equipmentID) {
+    // }
 
-    // equipment, equipment rental,lesson purchase,queries (maybe implement in other files?)
+
+    // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
+
+    // Lesson + Lesson Purchase
+    public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
+        int id = getNextId("LessonPurchase", "jeffreylayton");
+        String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            p.setInt(1, id);
+            p.setInt(2, mid);
+            p.setInt(3, lid);
+            p.setInt(4, totalSessions);
+            p.setInt(5, remaining);
+            p.executeUpdate();
+        }
+
+        return id;
+    }
+
+    public void adjustLessonPurchase(int oid, int remaining) throws SQLException {
+        String sql = "update jeffreylayton.LessonPurchase set remaining_sessions=? where order_id=?";
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            p.setInt(1, remaining);
+            p.setInt(2, oid);
+            int updated = p.executeUpdate();
+            if (updated == 0){
+                throw new SQLException("No order with ID " + oid);
+            }
+        }
+    }
 }
