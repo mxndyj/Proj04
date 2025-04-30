@@ -202,7 +202,26 @@ public class DBController {
     }
 
     // TODO implement these.
-    public int addRentalRecord(int skiPassID, int equipmentID) {
+    public int addRentalRecord(int skiPassID, int equipmentID) throw SQLException{
+	// First thing we need to do is determine if the given ski pass id is actually a valid
+	// active ski pass the foreign key constraint on equipmentID will take care of that check.
+	checkSkiPassValid = "select count(*) as pass_id_cnt from mandyjiang.SkiPass where pass_id=%d";
+	checkSkiPassValid = String.format(checkSkiPassValid,skiPassID);
+	ResultSet res = myStmt.executeQuery(checkSkiPassValid);
+
+        // Get the pass_id_cnt value.
+	int isSkiPassActive = 0;
+        if(res!=null) {
+        	if(res.next()) {isSkiPassActive=res.getInt("pass_id_cnt");}
+		else { return 1; } 
+        } else {
+		return 1; // If there is no result then the pass id is not valid return a return code of an error.
+        }
+ 
+        // Now actually check that there was a entrie with the proposed ski pass id.
+	if(isSkiPassActive != 1) {return 1;}
+
+        // Now that we have verified that the skiPassId is valid we can actually attempt to insert the new record.
     }
 
     public int deleteRentalRecord(int rentalID) {
