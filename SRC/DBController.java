@@ -222,35 +222,172 @@ public class DBController {
     }
 
     // TODO implement these.
-    public int addRentalRecord(int skiPassID, int equipmentID) throw SQLException{
+    public int addRentalRecord(int skiPassID, int equipmentID) throws SQLException,IllegalStateException{
+	Statment myStmt = dbconn.createStatment();
 	// First thing we need to do is determine if the given ski pass id is actually a valid
 	// active ski pass the foreign key constraint on equipmentID will take care of that check.
-	checkSkiPassValid = "select count(*) as pass_id_cnt from mandyjiang.SkiPass where pass_id=%d";
+	String checkSkiPassValid = "select 1 from mandyjiang.SkiPass where pass_id=%d";
 	checkSkiPassValid = String.format(checkSkiPassValid,skiPassID);
 	ResultSet res = myStmt.executeQuery(checkSkiPassValid);
 
-        // Get the pass_id_cnt value.
-	int isSkiPassActive = 0;
-        if(res!=null) {
-        	if(res.next()) {isSkiPassActive=res.getInt("pass_id_cnt");}
-		else { return 1; } 
-        } else {
-		return 1; // If there is no result then the pass id is not valid return a return code of an error.
-        }
+        // Check the result to determine if there is a entry with the ski pass.
+        if(!res.next()) {myStmt.close();throw new SQLException("Given pass id was not in ski pass table!");}
  
-        // Now actually check that there was a entrie with the proposed ski pass id.
-	if(isSkiPassActive != 1) {return 1;}
+	// Next verify that there are no unreturned rental currently with the same equipmentID.
+        String check_active_rental = "select 1 from tylergarfield.Rental where equipmentID=%d and returnStatus=0";
+	check_active_rental = String.format(check_active_rental,equipmentID);
+	res = myStmt.executeQuery(check_active_rental);
+	if(res.next()) { myStmt.close(); throw new IllegalStateException("Tried to rent equipment that has not yet been returned!");
 
-        // Now that we have verified that the skiPassId is valid we can actually attempt to insert the new record.
+
+        // Now that we have verified that the skiPassId is valid and the equipment is not already being rented.
+ 	//  we can actually attempt to insert the new record.
+        int rentalID = getNextId("Rental","tylergarfield");
+        String insert_query = "insert into tylergarfield.Rental values(%d,%d,%d,SYSTIMESTAMP,0)"
+	insert_query = String.format(insert_query,rentalID,skiPassID,equipmentID);
+        myStmt.executeUpdate(insert_query);
+
+        // Next create a new entrie in the log table with the previous state.
+        // Now actually add a new archive entry for logging changes.
+        int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+        String insertIntoLog = "insert into tylergarfield.Rental_Archive " +
+                               " select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,0 " +
+                               " from tylergarfield.Rental where rentalID=%d";
+        insertIntoLog = String.format(insertIntoLog,rentalArchiveID,rentalID);
+        myStmt.executeUpdate(insertIntoLog);
+
+        myStmt.close();
+        return rentalID;
     }
 
-    public int deleteRentalRecord(int rentalID) {
+    // Function returns 1 for a normal error and 2 if the givne rentalID does not exist.
+    public int returnEquipment(int rentalID) throws SQLException,IllegalStateException{
+        Statment myStmt = dbconn.createStatment();
+        // First verify that the given rentalID is in the Rental relation.
+        String check_rental_id = "select 1 from tylergarfield.Rental where rentalID=%d";
+        check_rental_id = String.format(check_rental_id, rentalID);
+        ResultSet res = myStmt.executeQuery(check_rental_id);
+        if(!res.next()) {myStmt.close(); throw new SQLException("The given rentalID does not exist!");}
+
+        // Check that the rental had not already been returned.
+        String checkRentalRet = "select returnStatus from tylergarfield.Rental where rentalID=%d";
+        checkRentalRet = String.format(checkRentalRet,rentalID);
+        res = myStmt.executeQuery(checkRentalRet);
+        int retStat = 0;
+        if(res.next()){retStat = res.getInt("returnStatus");}
+        if(retStat == 1){myStmt.close();throw new IllegalStateException("Attempted to return equipment that was already returned!";}
+
+        // Now that we have verified that the entry exists, the next thing to do is to actually update the
+        // equipments returnStatus.
+        String updateRent = "update tylergarfield.Rental set returnStatus=1 where rentalID=%d"
+        updateRent = String.format(updateRent,rentalID);
+        myStmt.executeUpdate(updateRent);
+
+         // Next create a new entrie in the log table with the previous state.
+        // Now actually add a new archive entry for logging changes.
+        int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+        String insertIntoLog = "insert into tylergarfield.Rental_Archive " +
+                               " select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,1 " +
+                               " from tylergarfield.Rental where rentalID=%d";
+        insertIntoLog = String.format(insertIntoLog,rentalArchiveID,rentalID);
+        myStmt.executeUpdate(insertIntoLog);
+
+	myStmt.close();
+        return 0;
     }
 
-    public int addEquipmentRecord(String type, int size, String name) {
+    public int deleteRentalRecord(int rentalID) throws SQLException,IllegalStateException{
+        Statment myStmt = dbconn.createStatment();
+        // First verify that the given rentalID is in the Rental relation.
+        String checkRentalId = "select 1 from tylergarfield.Rental where rentalID=%d";
+        checkRentalId = String.format(checkRentalId, rentalID);
+        if(!res.next()) {myStmt.close();throw new SQLException("Given rentalID was not present in the rental records!");}
+
+        // Before deleting or archiving the rental record also verify that the renetal has a return status of 1.
+        String checkRentalReturned = "select returnStatus from tylergarfield.Rental where rentalID=%d";
+        checkRentalReturned = String.format(checkRentalReturned,rentalID);
+        ResultSet res = myStmt.executeQuery(checkRentalReturned);
+        int rentRetStat = 0;
+        if(res.next()) {rentRetStatus=res.getInt("returnStatus")}
+
+        if(rentRetStat == 0) {myStmt.close();throw new IllegalStateException("Attempted to delete a active rental, return your equipment first!");}
+
+        // Now that we have verified that the rented equipment is no longer in use the next thing to do
+        // is to actually archive the record and delete it.
+        int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+        String addRentalToArchive = "insert into tylergarfield.Rental_Archive " +
+                                    "select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,2 " +
+                                    "from tylergarfield.Rental " +
+                                    "where rentalID=%d";
+        addRentalToArchive = String.format(addRentalToArchive,rentalArchiveID,rentalID);
+        myStmt.executeUpdate(addRentalToArchive);
+
+        // Now that that is done we can delete the rental record from the main Rental relation.
+        String deleteRental = "delete from tylergarfield.Rental where rentalID=%d";
+        deleteRental = String.format(deleteRental,rentalID);
+        myStmt.executeUpdate(deleteRental);
+
+        myStmt.close();
+
+        return 0;
+
+
     }
 
-    public int deleteEquipmentRecord(int equipmentID) {
+    public int addEquipmentRecord(String type, int size, String name) throws SQL Exception{
+        Statment myStmt = dbconn.createStatment();
+        // Next we will get the next equipment id.
+        int equipmentID = getNextId("Equipment","tylergarfield");
+        // Now actually add the new entry to the relaton.
+        String addToTable = "insert into tylergarfield.Equipment  values(%d,%s,%d,%s)"
+        addToTable = String.format(addToTable,equipmentID,type,size,name);
+        // Now execute the query.
+        myStmt.executeUpdate(addToTable);
+        myStmt.close();
+
+        // Next log the equipment adition in the archive table.
+        int equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
+        String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
+					"select %d,equipmentID,equip_type,size,name,0 " +
+					"from tylergarfield.Equipment where equipmentID=%d";
+        addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
+        myStmt.executeQuery(addEquipmentToArchive);
+        myStmt.close();
+        return equipmentID;
+    }
+
+    public int deleteEquipmentRecord(int equipmentID) throws SQLException{
+        Statment myStmt = dbconn.createStatment();
+
+        // // First check that the given equipmentID actually exists in the Equipment table.
+        String checkEQID = "select 1 from tylergarfield.Equipment where equipmentID=%d";
+        checkEQID = String.format(checkEQID,equipmentID);
+        ResultSet res = myStmt(checkEQID);
+        if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
+
+        // Now put the equipment delition in the log table.
+        int equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
+        String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
+                                        "select %d,equipmentID,equip_type,size,name,2 " +
+                                        "from tylergarfield.Equipment where equipmentID=%d";
+        addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
+        myStmt.executeQuery(addEquipmentToArchive);
+
+        // Finally remove the equipment from the equipment table.
+        String removeQuery = "delete from tylergarfield.Equipment where equipmentID=%d";
+        removeQuery = String.format(removeQuery,equipmentID);
+        myStmt.executeUpdate(removeQuery);
+        myStmt.close();
+        return 0;
+    }
+
+    public int updateEquipmentType(int equipmentID) {
+    }
+
+    public int upadeEquipmentName(int equipmentID) {
+    }
+
+    public int upadeEquipmentSize(int equipmentID) {
     }
 
     // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
