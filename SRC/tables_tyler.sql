@@ -18,7 +18,7 @@ create table tylergarfield.Rental (
 
 -- Next create the archive relation for Rental
 create table tylergarfield.Rental_Archive (
-	archRenalID INT primary key,
+	archRentalID INT primary key,
 	rentalID INT NOT NULL,
         skiPassID INT NOT NULL,
         equipmentID INT NOT NULL,
@@ -51,7 +51,7 @@ create table tylergarfield.Rental_Archive (
 -- Next is the equipment relation.
 create table tylergarfield.Equipment (
 	equipmentID INT primary key,
-	equip_type INT varchar2(25) CHECK(equip_type IN ('boot','pole','snowboard','alpine ski','protective gear')),
+	equip_type INT varchar2(25) CHECK(equip_type IN ('boot','pole','snowboard','alpine ski','helmet','goggle','glove')),
 	size INT NOT NULL, -- Will need to add a check on the use side to only allow records with valid sizes to be
 				-- inserted. I feel like trying to do a constraint with a bunch of ifs in here would
 				-- be way harder.
@@ -64,7 +64,7 @@ create table tylergarfield.Equipment_Archive (
         equip_type INT varchar2(25) NOT NULL,
         size INT NOT NULL,
         name varchar2(255) NOT NULL
-	changeState NUMBER(0,1,2) NOT NULL
+	changeState NUMBER(0,1,2) NOT NULL -- same state values as rental relation archive.
 );
 
 -- Now create the sequences that will be the unique artificial rentalID and equipmentID's
