@@ -29,6 +29,7 @@ public class SkiResort {
                 1. Members
                 2. Ski Passes
                 3. Lift Entry Scan
+                4. Purchase Lessons
                 0. Quit
                 Enter Option : """);
             int choice = readInt();
@@ -36,6 +37,7 @@ public class SkiResort {
                 case 1 -> memberMenu();
                 case 2 -> passMenu();
                 case 3 -> liftEntry();
+                case 4 -> purchaseLessonMenu();
                 case 0 -> { System.out.println("Goodbye!"); return; }
                 default -> System.out.println("Invalid choice.\n");
             }
@@ -166,6 +168,48 @@ public class SkiResort {
     }
 
 
+    private void purchaseLessonMenu() {
+        System.out.print(
+            """
+            Lessons:
+            1. Add Lesson Purchase
+            2. Adjust Lesson Purchase
+            3. Delete (archive)
+            0. Back
+            Enter Option >\
+            """);
+        int choice = readInt();
+        switch (choice) {
+            case 1 -> addLessonPurchase();
+            case 2 -> adjustLessonPurchase();
+            case 0 -> {} // back to main menu
+            default -> System.out.println("Invalid choice.\n");
+        }
+    }
+
+    private void addLessonPurchase() {
+        System.out.print("Member ID: "); int mid = readInt();
+        System.out.print("Lesson ID: "); int lid = readInt();
+        System.out.print("Total Sessions: "); int sessions = readInt();
+        System.out.print("Remaining Sessions: "); int remaining = readInt();
+        try {
+            int newOrderID=db.addLessonPurchase(mid, lid, sessions, remaining);
+            System.out.println("Lesson Purchase Added. New Order ID: " + newOrderID + "\n");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void adjustLessonPurchase() {
+        System.out.print("Order ID: "); int oid = readInt();
+        System.out.print("Remaining Sessions: "); int remaining = readInt();
+        try {
+            db.adjustLessonPurchase(oid, remaining);
+            System.out.println("Remaining sessions updated.\n");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
 
     //helper
     private int readInt() {
