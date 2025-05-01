@@ -264,4 +264,57 @@ public class DBController {
             }
         }
     }
+
+    public boolean deleteLessonPurchase(int oid) throws SQLException {
+        String archiveSql = """
+        insert into jeffreylayton.LessonPurchase_Archive (
+            order_id, member_id, lesson_id, total_sessions, remaining_sessions
+        )
+        select order_id, member_id, lesson_id, total_sessions, remaining_sessions
+        from jeffreylayton.LessonPurchase
+        where order_id = ?
+        """;
+
+        try (PreparedStatement a = dbconn.prepareStatement(archiveSql)) {
+            a.setInt(1, oid);
+            a.executeUpdate();
+        }
+
+        String deleteSql = "delete from jeffreylayton.LessonPurchase where order_id=?";
+
+        try (PreparedStatement d = dbconn.prepareStatement(deleteSql)) {
+            d.setInt(1, oid);
+            return d.executeUpdate() == 1;
+        }
+
+    }
+
+    public void getLessonsForMember(int mid) throws SQLException {
+        String sql = """
+        select e.name as "instructor_name", l.time, lp.total_sessions, lp.remaining_sessions
+        from jeffreylayton.LessonPurchase lp
+        join jeffreylayton.Lesson l on l.lesson_id = lp.lesson_id
+        join jeffreylayton.Employee e on e.employee_id = l.instructor_id
+        where lp.member_id=?
+        """;
+        
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            p.setInt(1, mid);
+            try (ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    String instructorName = rs.getString("instructor_name");
+                    Date lessonTime = rs.getDate("time");
+                    int totalSessions = rs.getInt("total_sessions");
+                    int remainingSessions = rs.getInt("remaining_sessions");
+
+                    System.out.println("Lesson: ");
+                    System.out.println("  Instructor:\t\t"       + instructorName);
+                    System.out.println("  Time:\t\t\t"           + lessonTime);
+                    System.out.println("  Purchased Sessions:\t" + String.valueOf(totalSessions));
+                    System.out.println("  Remaining Sessions:\t" + String.valueOf(remainingSessions));
+                    System.out.println();
+                }
+            }
+        }
+    }
 }

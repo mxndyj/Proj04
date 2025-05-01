@@ -1,13 +1,16 @@
 drop table jeffreylayton.Employee cascade constraints;
 drop table jeffreylayton.Lesson cascade constraints;
 drop table jeffreylayton.LessonPurchase cascade constraints;
+drop table jeffreylayton.LessonPurchase_Archive cascade constraints;
 drop sequence jeffreylayton.EMPLOYEE_SEQ;
 drop sequence jeffreylayton.LESSON_SEQ;
 drop sequence jeffreylayton.LESSONPURCHASE_SEQ;
+drop sequence jeffreylayton.LESSONPURCHASE_ARCHIVE_SEQ;
 
 create sequence jeffreylayton.EMPLOYEE_SEQ start with 1 increment by 1 nocache nocycle;
 create sequence jeffreylayton.LESSON_SEQ start with 1 increment by 1 nocache nocycle;
 create sequence jeffreylayton.LESSONPURCHASE_SEQ start with 1 increment by 1 nocache nocycle;
+create sequence jeffreylayton.LESSONPURCHASE_ARCHIVE_SEQ start with 1 increment by 1 nocache nocycle;
 
 create table jeffreylayton.Employee (
     employee_id int primary key,
@@ -38,9 +41,19 @@ create table jeffreylayton.LessonPurchase (
     foreign key(lesson_id) references jeffreylayton.Lesson(lesson_id)
 );
 
+create table jeffreylayton.LessonPurchase_Archive (
+    order_id int primary key,
+    member_id int not null,
+    lesson_id int not null,
+    total_sessions int not null,
+    remaining_sessions int not null,
+    foreign key(lesson_id) references jeffreylayton.Lesson(lesson_id)
+);
+
 grant select, insert, update, delete on jeffreylayton.Employee to public;
 grant select, insert, update, delete on jeffreylayton.Lesson to public;
 grant select, insert, update, delete on jeffreylayton.LessonPurchase to public;
+grant select, insert, update, delete on jeffreylayton.LessonPurchase_Archive to public;
 
 -- Employees
 INSERT INTO jeffreylayton.employee (
@@ -66,6 +79,12 @@ VALUES (12, 3, 1, 0, TO_TIMESTAMP('2025-05-07 14:00:00','yyyy-mm-dd hh24:mi:ss')
 -- LessonPurchases
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
 VALUES (1001, 501, 10, 5, 5);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (1004, 501, 11, 4, 3);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (1005, 501, 12, 5, 3);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
 VALUES (1002, 502, 11, 10, 4);

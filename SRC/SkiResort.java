@@ -173,6 +173,7 @@ public class SkiResort {
             1. Add Lesson Purchase
             2. Adjust Lesson Purchase
             3. Delete (archive)
+            4. Lessons for Member
             0. Back
             Enter Option >\
             """);
@@ -180,6 +181,8 @@ public class SkiResort {
         switch (choice) {
             case 1 -> addLessonPurchase();
             case 2 -> adjustLessonPurchase();
+            case 3 -> deleteLessonPurchase();
+            case 4 -> getLessonsForMember();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }
@@ -191,7 +194,7 @@ public class SkiResort {
         System.out.print("Total Sessions: "); int sessions = readInt();
         System.out.print("Remaining Sessions: "); int remaining = readInt();
         try {
-            int newOrderID=db.addLessonPurchase(mid, lid, sessions, remaining);
+            int newOrderID = db.addLessonPurchase(mid, lid, sessions, remaining);
             System.out.println("Lesson Purchase Added. New Order ID: " + newOrderID + "\n");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage() + "\n");
@@ -204,6 +207,25 @@ public class SkiResort {
         try {
             db.adjustLessonPurchase(oid, remaining);
             System.out.println("Remaining sessions updated.\n");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void deleteLessonPurchase() {
+        System.out.print("Order ID: "); int oid = readInt();
+        try {
+            if (db.deleteLessonPurchase(oid)) System.out.println("Lesson Purchase deleted and archived.\n");
+            else System.out.println("Cannot delete lesson purchase (unused sessions remain).\n");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+
+    private void getLessonsForMember() {
+        System.out.print("Member ID: "); int mid = readInt();
+        try {
+            db.getLessonsForMember(mid);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage() + "\n");
         }
