@@ -223,7 +223,7 @@ public class DBController {
 
     // TODO implement these.
     public int addRentalRecord(int skiPassID, int equipmentID) throws SQLException,IllegalStateException{
-	Statment myStmt = dbconn.createStatment();
+	Statement myStmt = dbconn.createStatement();
 	// First thing we need to do is determine if the given ski pass id is actually a valid
 	// active ski pass the foreign key constraint on equipmentID will take care of that check.
 	String checkSkiPassValid = "select 1 from mandyjiang.SkiPass where pass_id=%d";
@@ -236,14 +236,14 @@ public class DBController {
 	// Next verify that there are no unreturned rental currently with the same equipmentID.
         String check_active_rental = "select 1 from tylergarfield.Rental where equipmentID=%d and returnStatus=0";
 	check_active_rental = String.format(check_active_rental,equipmentID);
-	res = myStmt.executeQuery(check_active_rental);
-	if(res.next()) { myStmt.close(); throw new IllegalStateException("Tried to rent equipment that has not yet been returned!");
+	ResultSet res2 = myStmt.executeQuery(check_active_rental);
+	if(res2.next()) { myStmt.close(); throw new IllegalStateException("Tried to rent equipment that has not yet been returned!");}
 
 
         // Now that we have verified that the skiPassId is valid and the equipment is not already being rented.
  	//  we can actually attempt to insert the new record.
         int rentalID = getNextId("Rental","tylergarfield");
-        String insert_query = "insert into tylergarfield.Rental values(%d,%d,%d,SYSTIMESTAMP,0)"
+        String insert_query = "insert into tylergarfield.Rental values(%d,%d,%d,SYSTIMESTAMP,0)";
 	insert_query = String.format(insert_query,rentalID,skiPassID,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(insert_query);
 
@@ -258,17 +258,46 @@ public class DBController {
                                " from tylergarfield.Rental where rentalID=%d";
             insertIntoLog = String.format(insertIntoLog,rentalArchiveID,rentalID);
             myStmt.executeUpdate(insertIntoLog);
-        else { rentalID = -1;}
+        } else { rentalID = -1;}
 
         myStmt.close();
         return rentalID;
     }
-
+    
     // TODO add function here to modify rental time here!!!!!!
+    public int updateRentalTime(int rentalID) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        // First verify that the given rentalID is in the Rental relation.
+        String check_rental_id = "select 1 from tylergarfield.Rental where rentalID=%d";
+        check_rental_id = String.format(check_rental_id, rentalID);
+        ResultSet res = myStmt.executeQuery(check_rental_id);
+        if(!res.next()) {myStmt.close(); throw new SQLException("The given rentalID does not exist!");}
+
+        // Next update the rental time.
+        String updateRentTime = "update tylergarfield.Rental set rentalTime=SYSTIMESTAMP where rentalID=%d";
+        updateRentTime = String.format(updateRentTime,rentalID);
+        int numRowsUpdated = myStmt.executeUpdate(updateRentTime);
+
+        int rentalArchiveID = 0;
+
+        if(numRowsUpdated > 0) {
+         // Next create a new entrie in the log table with the previous state.
+        // Now actually add a new archive entry for logging changes.
+            rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+            String insertIntoLog = "insert into tylergarfield.Rental_Archive " +
+                               " select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,1 " +
+                               " from tylergarfield.Rental where rentalID=%d";
+            insertIntoLog = String.format(insertIntoLog,rentalArchiveID,rentalID);
+            myStmt.executeUpdate(insertIntoLog);
+        }
+
+        myStmt.close();
+        return rentalArchiveID;
+    }
 
     // Function returns 1 for a normal error and 2 if the givne rentalID does not exist.
     public int returnEquipment(int rentalID) throws SQLException,IllegalStateException{
-        Statment myStmt = dbconn.createStatment();
+        Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
         String check_rental_id = "select 1 from tylergarfield.Rental where rentalID=%d";
         check_rental_id = String.format(check_rental_id, rentalID);
@@ -281,20 +310,20 @@ public class DBController {
         res = myStmt.executeQuery(checkRentalRet);
         int retStat = 0;
         if(res.next()){retStat = res.getInt("returnStatus");}
-        if(retStat == 1){myStmt.close();throw new IllegalStateException("Attempted to return equipment that was already returned!";}
+        if(retStat == 1){myStmt.close();throw new IllegalStateException("Attempted to return equipment that was already returned!");}
 
         // Now that we have verified that the entry exists, the next thing to do is to actually update the
         // equipments returnStatus.
-        String updateRent = "update tylergarfield.Rental set returnStatus=1 where rentalID=%d"
+        String updateRent = "update tylergarfield.Rental set returnStatus=1 where rentalID=%d";
         updateRent = String.format(updateRent,rentalID);
         int numRowsUpdated = myStmt.executeUpdate(updateRent);
 
         int rentalArchiveID = 0;
 
-        if(numRowsUpdate > 0) {
+        if(numRowsUpdated > 0) {
          // Next create a new entrie in the log table with the previous state.
         // Now actually add a new archive entry for logging changes.
-            int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+            rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
             String insertIntoLog = "insert into tylergarfield.Rental_Archive " +
                                " select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,1 " +
                                " from tylergarfield.Rental where rentalID=%d";
@@ -307,17 +336,18 @@ public class DBController {
     }
 
     public int deleteRentalRecord(int rentalID) throws SQLException,IllegalStateException{
-        Statment myStmt = dbconn.createStatment();
+        Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
         String checkRentalId = "select 1 from tylergarfield.Rental where rentalID=%d";
         checkRentalId = String.format(checkRentalId, rentalID);
+        ResultSet res = myStmt.executeQuery(checkRentalId);
         if(!res.next()) {myStmt.close();throw new SQLException("Given rentalID was not present in the rental records!");}
 
         // We will check if the equipment " the record was created and the equipment has been used " by checking if the only
         // logged even is the record being created.
-        Stirng checkBeenUsed = "select changeState from tylergarfield.Equipment_Archive where rentalID=%d";
+        String checkBeenUsed = "select changeState from tylergarfield.Equipment_Archive where rentalID=%d";
         checkBeenUsed = String.format(checkBeenUsed,rentalID);
-        myStmt.exexuteQuery(checkBeenUsed);
+        res = myStmt.executeQuery(checkBeenUsed);
         int onlyAdded = 1;
         if(res!=null) {
             while(res.next()) {
@@ -330,9 +360,9 @@ public class DBController {
             // Before deleting or archiving the rental record also verify that the renetal has a return status of 1.
             String checkRentalReturned = "select returnStatus from tylergarfield.Rental where rentalID=%d";
             checkRentalReturned = String.format(checkRentalReturned,rentalID);
-            ResultSet res = myStmt.executeQuery(checkRentalReturned);
+            res = myStmt.executeQuery(checkRentalReturned);
             int rentRetStat = 0;
-            if(res.next()) {rentRetStatus=res.getInt("returnStatus")}
+            if(res.next()) {rentRetStat=res.getInt("returnStatus");}
 
             if(rentRetStat == 0) {myStmt.close();throw new IllegalStateException("Attempted to delete a active rental, return your equipment first!");}
         }
@@ -353,26 +383,50 @@ public class DBController {
 
         myStmt.close();
 
-        return numRowDeleted;
+        return numRowsDeleted;
 
 
     }
 
-    public int addEquipmentRecord(String type, int size, String name) throws SQL Exception{
-        Statment myStmt = dbconn.createStatment();
+    public int addEquipmentRecord(String type, double size, String name) throws SQLException,IllegalStateException{
+        Statement myStmt = dbconn.createStatement();
+
+        // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
+        // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
+        // TODO you were here ACTUALLY FILL IN THESE CHECKS.
+        if(type.equals("boot") && (size < 4.0 || size > 14.0)) {
+            myStmt.close();
+            throw new IllegalStateException("Given boot for equipment but size was not within valid range!");
+        } else if(type.equals("pole") && (size < 100.0 || size > 140.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given pole for equipment update but size was not within valid range!");
+        } else if(type.equals("alpine ski") && (size < 115.0 || size > 200.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given alpine ski for equipment update but size was not within valid range!");
+        } else if(type.equals("snowboard") && (size < 90.0 || size > 178.0)){
+             myStmt.close();
+             throw new IllegalStateException("Given snowboard ski for equipment update but size was not within valid range!");
+        } else if(type.equals("helmet") || type.equals("goggle") || type.equals("glove")) {
+            if(size < 1.0 || size > 3.0) {
+                myStmt.close();
+                throw new IllegalStateException("Given "+type +" for equipment update but size was not within valid range!");
+            }
+        }
+
+
         // Next we will get the next equipment id.
         int equipmentID = getNextId("Equipment","tylergarfield");
         // Now actually add the new entry to the relaton.
-        String addToTable = "insert into tylergarfield.Equipment  values(%d,%s,%d,%s)"
+        String addToTable = "insert into tylergarfield.Equipment  values(%d,%s,%f,%s)";
         addToTable = String.format(addToTable,equipmentID,type,size,name);
         // Now execute the query.
-        int numRowAffected = myStmt.executeUpdate(addToTable);
+        int numRowsAffected = myStmt.executeUpdate(addToTable);
 
         if(numRowsAffected > 0) {
         // Next log the equipment adition in the archive table.
             int equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
-					"select %d,equipmentID,equip_type,size,name,0 " +
+					"select %d,equipmentID,equip_type,equip_size,name,0 " +
 					"from tylergarfield.Equipment where equipmentID=%d";
             addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
             myStmt.executeQuery(addEquipmentToArchive);
@@ -382,32 +436,38 @@ public class DBController {
     }
 
     public int deleteEquipmentRecord(int equipmentID) throws SQLException{
-        Statment myStmt = dbconn.createStatment();
+        Statement myStmt = dbconn.createStatement();
 
         // // First check that the given equipmentID actually exists in the Equipment table.
         String checkEQID = "select 1 from tylergarfield.Equipment where equipmentID=%d";
         checkEQID = String.format(checkEQID,equipmentID);
-        ResultSet res = myStmt(checkEQID);
+        ResultSet res = myStmt.executeQuery(checkEQID);
         if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
+
+        // Next check if the given piece of equipment is currently being rented at all all.
+        String checkRentedOut = "select 1 from tylergarfield.Rental where equipmentID=%d";
+        checkRentedOut = String.format(checkRentedOut,equipmentID);
+        res = myStmt.executeQuery(checkRentedOut);
+        if(res.next()){myStmt.close();throw new SQLException("Equipment is currently rented!");}
 
         // Now put the equipment delition in the log table.
         int equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
         String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
-                                        "select %d,equipmentID,equip_type,size,name,2 " +
+                                        "select %d,equipmentID,equip_type,equip_size,name,2 " +
                                         "from tylergarfield.Equipment where equipmentID=%d";
         addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
-        myStmt.executeQuery(addEquipmentToArchive);
+        myStmt.executeUpdate(addEquipmentToArchive);
 
         // Finally remove the equipment from the equipment table.
         String removeQuery = "delete from tylergarfield.Equipment where equipmentID=%d";
         removeQuery = String.format(removeQuery,equipmentID);
-        int numRowAffected = myStmt.executeUpdate(removeQuery);
+        int numRowsAffected = myStmt.executeUpdate(removeQuery);
         myStmt.close();
         return numRowsAffected;
     }
 
     public int updateEquipmentType(int equipmentID,String newType) throws SQLException{
-        Statment myStmt = dbconn.createStatment();
+        Statement myStmt = dbconn.createStatement();
 
         // First verify that the equipment that is attempting to be added updated actually exists.
         String checkEQID = "select 1 from tylergarfield.Equipment where equipmentID=%d";
@@ -416,7 +476,7 @@ public class DBController {
         if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
 
         // Now actually update the equipment type and record the change in the log.
-        String updateType("update tylergarfield.Equipment set equip_type='%s' where equipmentID=%d");
+        String updateType = "update tylergarfield.Equipment set equip_type='%s' where equipmentID=%d";
         updateType = String.format(updateType,newType,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(updateType);
 
@@ -425,7 +485,7 @@ public class DBController {
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
-                                        "select %d,equipmentID,equip_type,size,name,1 " +
+                                        "select %d,equipmentID,equip_type,equip_size,name,1 " +
                                         "from tylergarfield.Equipment where equipmentID=%d";
             addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
             myStmt.executeQuery(addEquipmentToArchive);
@@ -436,7 +496,7 @@ public class DBController {
     }
 
     public int updateEquipmentName(int equipmentID,String equipName) throws SQLException{
-         Statment myStmt = dbconn.createStatment();
+         Statement myStmt = dbconn.createStatement();
 
         // First verify that the equipment that is attempting to be added actually exists.
         String checkEQID = "select 1 from tylergarfield.Equipment where equipmentID=%d";
@@ -445,7 +505,7 @@ public class DBController {
         if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
 
         // Now actually update the equipment type and record the change in the log.
-        String updateType("update tylergarfield.Equipment set name='%s' where equipmentID=%d");
+        String updateName = "update tylergarfield.Equipment set name='%s' where equipmentID=%d";
         updateName = String.format(updateName,equipName,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(updateName);
 
@@ -454,7 +514,7 @@ public class DBController {
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
-                                        "select %d,equipmentID,equip_type,size,name,1 " +
+                                        "select %d,equipmentID,equip_type,equip_size,name,1 " +
                                         "from tylergarfield.Equipment where equipmentID=%d";
             addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
             myStmt.executeQuery(addEquipmentToArchive);
@@ -465,7 +525,7 @@ public class DBController {
     }
 
     public int updateEquipmentSize(int equipmentID, double newSize) throws SQLException,IllegalArgumentException{
-        Statment myStmt = dbconn.createStatment();
+        Statement myStmt = dbconn.createStatement();
 
         // First verify that the equipment that is attempting to be added actually exists.
         String checkEQID = "select equip_type from tylergarfield.Equipment where equipmentID=%d";
@@ -478,7 +538,7 @@ public class DBController {
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
         // TODO you were here ACTUALLY FILL IN THESE CHECKS.
-        if(equipType.equals("boot") && (newSize < 4.0 || newSize > 14.0) {
+        if(equipType.equals("boot") && (newSize < 4.0 || newSize > 14.0)) {
             myStmt.close();
             throw new IllegalStateException("Given boot for equipment update but size was not within valid range!");
         } else if(equipType.equals("pole") && (newSize < 100.0 || newSize > 140.0)){
@@ -490,25 +550,25 @@ public class DBController {
         } else if(equipType.equals("snowboard") && (newSize < 90.0 || newSize > 178.0)){
              myStmt.close();
              throw new IllegalStateException("Given snowboard ski for equipment update but size was not within valid range!");
-        } else if((equipType.equals("helmet") || (equipType.equals("goggle") || (equipType.equals("glove")) {
+        } else if(equipType.equals("helmet") || equipType.equals("goggle") || equipType.equals("glove")) {
             if(newSize < 1.0 || newSize > 3.0) {
                 myStmt.close();
-                throw new IllegalStateException("Given alpine "+equipType +" for equipment update but size was not within valid range!");
+                throw new IllegalStateException("Given "+equipType +" for equipment update but size was not within valid range!");
             }
         }
 
         int numRowsAffected = 0;
 
         // Now actually update the equipment type and record the change in the log.
-        String updateSize("update tylergarfield.Equipment set size=%f where equipmentID=%d");
-        updateSize = String.format(updateSize,newType,equipmentID);
+        String updateSize = "update tylergarfield.Equipment set equip_size=%f where equipmentID=%d";
+        updateSize = String.format(updateSize,newSize,equipmentID);
         numRowsAffected = myStmt.executeUpdate(updateSize);
          // If the entry was successfully updated add the update to the log.
         int equipmentArchiveID = 0;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
-                                        "select %d,equipmentID,equip_type,size,name,1 " +
+                                        "select %d,equipmentID,equip_type,equip_size,name,1 " +
                                         "from tylergarfield.Equipment where equipmentID=%d";
             addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
             myStmt.executeQuery(addEquipmentToArchive);
