@@ -701,7 +701,7 @@ public class DBController {
         }
         int propertyID = getNextId("Property","ascherer");
         
-        String addToTable = "insert into ascherer.Property values(%d,%s,%d)";
+        String addToTable = "insert into ascherer.Property values(%d,'%s',%d)";
         addToTable = String.format(addToTable,propertyID,type,income);
         int rowsAffected = myStmt.executeUpdate(addToTable);
         if (rowsAffected <= 0){
@@ -727,7 +727,7 @@ public class DBController {
             throw new IllegalStateException("A free parking lot cannot have any daily income");
         }
 
-        String updateIncome = "update ascherer.Property set income=%d where propertyID=%d";
+        String updateIncome = "update ascherer.Property set daily_income=%d where propertyID=%d";
         updateIncome = String.format(updateIncome,newIncome,propertyID);
         int rowsAffected = myStmt.executeUpdate(updateIncome);
         if (rowsAffected <= 0){

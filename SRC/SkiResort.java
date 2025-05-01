@@ -32,7 +32,7 @@ public class SkiResort {
                 3. Lift Entry Scan
                 4. Purchase Lessons
                 5. Gear Rental
-		6. New Gear
+		        6. New Gear
                 7. Properties
                 0. Quit
                 Enter Option : """);
@@ -373,7 +373,7 @@ public class SkiResort {
         }
     }
     private void addProperty(){
-        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot ");
+        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot \n");
         System.out.print("Propety type: ");String type = in.nextLine();
         System.out.print("Daily Income: ");int income = readInt();
 
@@ -386,7 +386,7 @@ public class SkiResort {
         }
     }
     private void updatePropertyType(){
-        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot ");
+        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot \n");
         System.out.print("New Propety type: ");String type = in.nextLine();
         System.out.print("What propertyID is being updated?: ");int id = readInt();
 
