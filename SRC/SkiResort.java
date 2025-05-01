@@ -33,6 +33,7 @@ public class SkiResort {
                 4. Purchase Lessons
                 5. Gear Rental
 		6. New Gear
+                7. Properties
                 0. Quit
                 Enter Option : """);
             int choice =readInt();
@@ -43,6 +44,7 @@ public class SkiResort {
                 case 4 -> purchaseLessonMenu();
                 case 5 -> rentalMenu();
 		case 6 -> equipmentMenu();
+                case 7 -> propertyMenu();
                 case 0 -> { System.out.println("Goodbye!"); return; }
                 default -> System.out.println("Invalid choice.\n");
             }
@@ -347,6 +349,77 @@ public class SkiResort {
     }
 
     private void deleteEquipmentRecord() {
+    }
+
+    private void propertyMenu(){
+        System.out.print(
+            """
+            Properties:
+            1. Add a new property
+            2. Update Property Type
+            3. Update Property Daily Income
+            4. Delete Property
+            0. Back
+            Enter Option > """);
+            
+        int choice = readInt();
+        switch (choice) {
+            case 1 -> addProperty();
+            case 2 -> updatePropertyType();
+            case 3 -> updatePropertyIncome();
+            case 4 -> deleteProperty();
+            case 0 -> {} // back to main menu
+            default -> System.out.println("Invalid choice.\n");
+        }
+    }
+    private void addProperty(){
+        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot ");
+        System.out.print("Propety type: ");String type = in.nextLine();
+        System.out.print("Daily Income: ");int income = readInt();
+
+        try {
+            int propertyID = db.addProperty(type,income);
+            if(propertyID>=0) {System.out.println("Successfully added a new property with propertyID "+propertyID+"!");}
+            else {System.out.println("The new property was unable to be added, check the property type is valid");}
+        } catch(Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+    private void updatePropertyType(){
+        System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot ");
+        System.out.print("New Propety type: ");String type = in.nextLine();
+        System.out.print("What propertyID is being updated?: ");int id = readInt();
+
+        try {
+            int propertyID = db.updatePropertyType(id,type);
+            if(propertyID>=0) {System.out.println("Successfully changed the type of the property with propertyID "+propertyID+"!");}
+            else {System.out.println("The property was unable to have the type updated");}
+        } catch(Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+    private void updatePropertyIncome(){
+        System.out.print("What propertyID is being updated?: ");int id = readInt();
+        System.out.print("New Daily Income: ");int income = readInt();
+
+        try {
+            int propertyID = db.updatePropetyIncome(id,income);
+            if(propertyID>=0) {System.out.println("Successfully changed the type of the property with propertyID "+propertyID+"!");}
+            else {System.out.println("The property was unable to have the type updated");}
+        } catch(Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
+    }
+    private void deleteProperty(){
+        System.out.print("What propertyID that you wish to delete?: ");int id = readInt();
+
+        try {
+            int propertyID = db.deleteProperty(id);
+            if(propertyID>=0) {System.out.println("Successfully deleted the property with propertyID "+propertyID+"!");}
+            else {System.out.println("The property at the chosen ID was unable to be deleted");}
+        } catch(Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
     }
 
     //helper
