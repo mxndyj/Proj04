@@ -21,7 +21,7 @@ create table jeffreylayton.Employee (
     salary int not null,
     sex varchar2(1) not null,
     ethnicity varchar2(50) not null,
-    certification_level Number(1) check (certification_level in (1, 2, 3))
+    certification_level Number(1) check (certification_level in (1, 2, 3) or certification_level is null)
 );
 
 create table jeffreylayton.Lesson (
@@ -64,7 +64,7 @@ INSERT INTO jeffreylayton.employee (employee_id, position, start_date, name, age
 VALUES (2, 'Instructor', TO_DATE('2022-06-01','yyyy-mm-dd'), 'Bob Person', 35, 60000, 'm', 'caucasian', 2);
 
 INSERT INTO jeffreylayton.employee ( employee_id, position, start_date, name, age, salary, sex, ethnicity, certification_level)
-VALUES (3, 'Person', TO_DATE('2024-03-12','yyyy-mm-dd'), 'Carla Person', 42, 65000, 'f', 'hispanic', 3);
+VALUES (3, 'Person', TO_DATE('2024-03-12','yyyy-mm-dd'), 'Carla Person', 42, 65000, 'f', 'hispanic', null);
 
 -- Lessons
 INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
