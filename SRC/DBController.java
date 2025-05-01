@@ -14,7 +14,6 @@ public class DBController {
     }
 
     //UNIQUE ID getter using sequences for each tablename
-
     private int getNextId(String table,String owner) throws SQLException {
         String seq=table.toUpperCase() + "_SEQ";
         String sql="select " + owner + "." + seq + ".NEXTVAL FROM DUAL";
@@ -30,14 +29,21 @@ public class DBController {
     public int addMember(String name,String phone,String email,String dob,String emergency) throws SQLException {
         int id=getNextId("Member","mandyjiang");
         String sql="insert into mandyjiang.Member(member_id,name,phone,email,date_of_birth,emergency_contact) VALUES(?,?,?,?,?,?)";
-        try (PreparedStatement p=dbconn.prepareStatement(sql)) {
-            p.setInt(1,id);
-            p.setString(2,name);
-            p.setString(3,phone);
-            p.setString(4,email);
-            p.setDate(5,dob == null || dob.isBlank() ? null : Date.valueOf(dob));
-            p.setString(6,emergency);
-            p.executeUpdate();
+        try (PreparedStatement stmt=dbconn.prepareStatement(sql)) {
+            stmt.setInt(1,id);
+            stmt.setString(2,name);
+            stmt.setString(3,phone);
+            stmt.setString(4,email);
+            Date dobDate;
+                if (dob ==null ||dob.trim().isEmpty()) {
+                    dobDate =null;
+                } else {
+                    dobDate = Date.valueOf(dob);
+                }
+
+            stmt.setDate(5, dobDate);
+            stmt.setString(6,emergency);
+            stmt.executeUpdate();
             
         }
         return id;
@@ -45,12 +51,12 @@ public class DBController {
 
     public void updateMember(int id,String phone,String email,String emergency) throws SQLException {
         String sql="update mandyjiang.Member SET phone=COALESCE(?,phone),email=COALESCE(?,email),emergency_contact=COALESCE(?,emergency_contact) where member_id=?";
-        try (PreparedStatement p=dbconn.prepareStatement(sql)) {
-            p.setString(1,phone);
-            p.setString(2,email);
-            p.setString(3,emergency);
-            p.setInt(4,id);
-            int updated=p.executeUpdate();
+        try (PreparedStatement stmt=dbconn.prepareStatement(sql)) {
+            stmt.setString(1,phone);
+            stmt.setString(2,email);
+            stmt.setString(3,emergency);
+            stmt.setInt(4,id);
+            int updated=stmt.executeUpdate();
             if (updated == 0) {
                 throw new SQLException("No member with ID " + id);
             }
@@ -59,44 +65,49 @@ public class DBController {
     }
 
     public boolean deleteMember(int id) throws SQLException {
-        // 1. Check for active ski passes
-        String checkPass=
-          "select 1 from mandyjiang.SkiPass " +
-          "where member_id=? AND (remaining_uses>0 OR expiration_date > SYSTIMESTAMP)";
-        try (PreparedStatement cp=dbconn.prepareStatement(checkPass)) {
-            cp.setInt(1,id);
-            if (cp.executeQuery().next()) {
-                throw new IllegalStateException("Cannot delete member: active ski passes exist.");
+         // refuse deletion if remaining_uses > 0 or expiration_date > now
+        String checkPass= "select * from mandyjiang.SkiPass " +
+          "where member_id=? and  (remaining_uses>0 OR expiration_date > SYSTIMESTAMP)";
+            try (PreparedStatement cp_stmt=dbconn.prepareStatement(checkPass)) {
+                cp_stmt.setInt(1,id);
+                if (cp_stmt.executeQuery().next()) {
+                    throw new IllegalStateException("Member can't be deleted: active ski passes exist.");
+                }
             }
-        }
-    
-        // // 2. Check for open equipment rentals update tables names later
-        // String checkRental="select * from Rental where member_id=? AND return_status='OUT'";
-        // try (PreparedStatement cr=dbconn.prepareStatement(checkRental)) {
-        //     cr.setInt(1,id);
-        //     if (cr.executeQuery().next()) {
-        //         throw new IllegalStateException("Cannot delete member: open equipment rentals exist.");
-        //     }
-        // }
-    
-        // // 3. Check for unused lesson sessions
-        // String checkLesson="select * from LessonPurchase where member_id=? AND remaining_sessions>0";
-        // try (PreparedStatement cl=dbconn.prepareStatement(checkLesson)) {
-        //     cl.setInt(1,id);
-        //     if (cl.executeQuery().next()) {
-        //         throw new IllegalStateException("Cannot delete member: unused lesson sessions exist.");
-        //     }
-        // }
-    
-    
+         // refuse if any unreturned rental is still out
+        String checkRental ="select * from tylergarfield.Rental " + "where skiPassID in (select pass_id from mandyjiang.SkiPass where member_id = ?) " +
+        "and returnStatus = 1" ;
+            try (PreparedStatement ch_rental = dbconn.prepareStatement(checkRental)) {
+                ch_rental.setInt(1, id);
+                if (ch_rental.executeQuery().next()) {
+                    throw new IllegalStateException("Member can't be deleted: open equipment rentals exist.");
+                }
+            }
+        // check for unused lessons
+        String checkLesson =
+        "select * from jeffreylayton.LessonPurchase " + "where member_id = ? and  remaining_sessions > 0";
+            try (PreparedStatement cl_lesson = dbconn.prepareStatement(checkLesson)) {
+                cl_lesson.setInt(1, id);
+                if (cl_lesson.executeQuery().next()) {
+                    throw new IllegalStateException("Member can't be deleted: unused lesson sessions exist.");
+                }
+            }
+        //delete the rentals history
+        String delArchRentals =
+        "delete from tylergarfield.Rental_Archive where skiPassID in ( " +
+        "  select pass_id FROM mandyjiang.SkiPass WHERE member_id = ?)";
+            try (PreparedStatement ps = dbconn.prepareStatement(delArchRentals)) {
+                ps.setInt(1, id);
+                ps.executeUpdate();
+            }
 
-        //  Delete member
-        try (PreparedStatement dm=dbconn.prepareStatement(
-                 "DELETE from mandyjiang.Member where member_id=?"
-             )) {
-            dm.setInt(1,id);
-            return dm.executeUpdate() == 1;
-        }
+        //  dekete  member
+            try (PreparedStatement dm=dbconn.prepareStatement(
+                    "DELETE from mandyjiang.Member where member_id=?"
+                )) {
+                dm.setInt(1,id);
+                return dm.executeUpdate() == 1;
+            }
     }
 
     //  Ski Pass
@@ -106,9 +117,7 @@ public class DBController {
 
         int defaultUses;
         double defaultPrice;
-        String lookupSql=""" 
-        SELECT total_uses,price from mandyjiang.PassType where type=?
-        """;
+        String lookupSql="select  total_uses,price from mandyjiang.PassType where type=?";
         try (PreparedStatement lookup=dbconn.prepareStatement(lookupSql)) {
             lookup.setString(1,type);
             try (ResultSet rs=lookup.executeQuery()) {
@@ -121,17 +130,14 @@ public class DBController {
         }
         System.out.printf("FYI: That %s pass costs $%.2f and grants %d uses.%n",type,defaultPrice,defaultUses);
 
-        String insertsql="""
-        Insert into mandyjiang.SkiPass(pass_id,member_id,type,remaining_uses,purchase_time,expiration_date) 
-        VALUES(?,?,?,?,SYSTIMESTAMP,?)
-        """;
-        try (PreparedStatement p=dbconn.prepareStatement(insertsql)) {
-            p.setInt(1,id);
-            p.setInt(2,mid);
-            p.setString(3,type);
-            p.setInt(4,defaultUses);
-            p.setDate(5,Date.valueOf(exp));
-            p.executeUpdate();
+        String insertsql="Insert into mandyjiang.SkiPass(pass_id,member_id,type,remaining_uses,purchase_time,expiration_date) VALUES(?,?,?,?,SYSTIMESTAMP,?)";
+        try (PreparedStatement stmt=dbconn.prepareStatement(insertsql)) {
+            stmt.setInt(1,id);
+            stmt.setInt(2,mid);
+            stmt.setString(3,type);
+            stmt.setInt(4,defaultUses);
+            stmt.setDate(5,Date.valueOf(exp));
+            stmt.executeUpdate();
         }
 
         return id;
@@ -140,10 +146,10 @@ public class DBController {
 
     public void adjustPassUses(int pid,int uses) throws SQLException {
         String sql="update mandyjiang.SkiPass SET remaining_uses=? where pass_id=?";
-        try (PreparedStatement p =dbconn.prepareStatement(sql)) {
-            p.setInt(1,uses);
-            p.setInt(2,pid);
-            int updated=p.executeUpdate();
+        try (PreparedStatement stmt=dbconn.prepareStatement(sql)) {
+            stmt.setInt(1,uses);
+            stmt.setInt(2,pid);
+            int updated=stmt.executeUpdate();
             if (updated == 0) {
                 throw new SQLException("No ski pass exist with ID " +pid);
             }
@@ -152,7 +158,7 @@ public class DBController {
     }
 
     public boolean deletePass(int pid) throws SQLException {
-        // 1. Check that the pass exists and is expired/used up
+        // check that the pass exists and is expired/used up
         try (PreparedStatement chk=dbconn.prepareStatement("select remaining_uses,expiration_date from mandyjiang.SkiPass where pass_id=?")) {
             chk.setInt(1,pid);
             try (ResultSet rs=chk.executeQuery()) {
@@ -164,10 +170,22 @@ public class DBController {
                     );
             }
         }
+        // check if any live rental is still out
+        String checkRental =
+            "select *   from tylergarfield.Rental " +
+            " where skiPassID = ? and returnStatus = 0";
+            try (PreparedStatement stmt = dbconn.prepareStatement(checkRental)) {
+                stmt.setInt(1, pid);
+                if (stmt.executeQuery().next()) {
+                    throw new IllegalStateException(
+                        "Cannot delete pass: there are unreturned equipment rentals."
+                    );
+            }
+        }
     
-        // 2. Archive / delete 
+        // Now, Archive / delete 
         String archiveSql="""
-            INSERT INTO mandyjiang.SkiPass_Archive(
+            insert into mandyjiang.SkiPass_Archive(
             SPARCHIVE_ID,PASS_ID,MEMBER_ID,TYPE,
             REMAINING_USES,PURCHASE_TIME,EXPIRATION_DATE,ARCHIVED_TIME)
             select mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,
@@ -241,13 +259,13 @@ public class DBController {
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
         int id = getNextId("LessonPurchase", "jeffreylayton");
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
-        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
-            p.setInt(1, id);
-            p.setInt(2, mid);
-            p.setInt(3, lid);
-            p.setInt(4, totalSessions);
-            p.setInt(5, remaining);
-            p.executeUpdate();
+        try (PreparedStatement stmt= dbconn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.setInt(2, mid);
+            stmt.setInt(3, lid);
+            stmt.setInt(4, totalSessions);
+            stmt.setInt(5, remaining);
+            stmt.executeUpdate();
         }
 
         return id;
@@ -255,10 +273,10 @@ public class DBController {
 
     public void adjustLessonPurchase(int oid, int remaining) throws SQLException {
         String sql = "update jeffreylayton.LessonPurchase set remaining_sessions=? where order_id=?";
-        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
-            p.setInt(1, remaining);
-            p.setInt(2, oid);
-            int updated = p.executeUpdate();
+        try (PreparedStatement stmt = dbconn.prepareStatement(sql)) {
+            stmt.setInt(1, remaining);
+            stmt.setInt(2, oid);
+            int updated = stmt.executeUpdate();
             if (updated == 0){
                 throw new SQLException("No order with ID " + oid);
             }
