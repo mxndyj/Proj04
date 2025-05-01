@@ -178,7 +178,7 @@ public class SkiResort {
             1. Add Lesson Purchase
             2. Adjust Lesson Purchase
             3. Delete (archive)
-            4. Lessons for Member
+            4. Get Lessons for Member
             0. Back
             Enter Option >\
             """);

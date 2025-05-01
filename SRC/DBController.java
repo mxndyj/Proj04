@@ -284,6 +284,22 @@ public class DBController {
     }
 
     public boolean deleteLessonPurchase(int oid) throws SQLException {
+        String checkSql = "select remaining_sessions from jeffreyLayton.LessonPurchase where order_id = ?";
+        try (PreparedStatement c = dbconn.prepareStatement(checkSql)) {
+            c.setInt(1, oid);
+            try (ResultSet rs =  c.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalStateException("Lesson Purchase does not exist");
+                } else {
+                    int sessions = rs.getInt("remaining_sessions");
+                    if (sessions > 0) {
+                    throw new IllegalStateException("Lesson Purchase contains remaining sessions");
+                    }
+                }
+            }
+        }
+
+
         String archiveSql = """
         insert into jeffreylayton.LessonPurchase_Archive (
             order_id, member_id, lesson_id, total_sessions, remaining_sessions
@@ -309,11 +325,12 @@ public class DBController {
 
     public void getLessonsForMember(int mid) throws SQLException {
         String sql = """
-        select e.name as "instructor_name", l.time, lp.total_sessions, lp.remaining_sessions
+        select l.lesson_id, e.name as "instructor_name", l.time, sum(lp.total_sessions) as "total_sessions", sum(lp.remaining_sessions) as "remaining_sessions"
         from jeffreylayton.LessonPurchase lp
         join jeffreylayton.Lesson l on l.lesson_id = lp.lesson_id
         join jeffreylayton.Employee e on e.employee_id = l.instructor_id
         where lp.member_id=?
+        group by l.lesson_id, e.name, l.time
         """;
         
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
