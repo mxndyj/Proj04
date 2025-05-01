@@ -1,3 +1,4 @@
+
 import java.util.Scanner;
 
 public class SkiResort {
@@ -30,8 +31,8 @@ public class SkiResort {
                 2. Ski Passes
                 3. Lift Entry Scan
                 4. Purchase Lessons
-		5. Gear Rental
-		6. Resort Equipment
+                5. Gear Rental
+		6. New Gear
                 0. Quit
                 Enter Option : """);
             int choice =readInt();
@@ -41,7 +42,7 @@ public class SkiResort {
                 case 3 -> liftEntry();
                 case 4 -> purchaseLessonMenu();
                 case 5 -> rentalMenu();
-                case 6 -> equipmentMenu();
+		case 6 -> equipmentMenu();
                 case 0 -> { System.out.println("Goodbye!"); return; }
                 default -> System.out.println("Invalid choice.\n");
             }
@@ -177,6 +178,7 @@ public class SkiResort {
             1. Add Lesson Purchase
             2. Adjust Lesson Purchase
             3. Delete (archive)
+            4. Lessons for Member
             0. Back
             Enter Option >\
             """);
@@ -184,6 +186,8 @@ public class SkiResort {
         switch (choice) {
             case 1 -> addLessonPurchase();
             case 2 -> adjustLessonPurchase();
+            case 3 -> deleteLessonPurchase();
+            case 4 -> getLessonsForMember();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }
@@ -195,7 +199,7 @@ public class SkiResort {
         System.out.print("Total Sessions: "); int sessions = readInt();
         System.out.print("Remaining Sessions: "); int remaining = readInt();
         try {
-            int newOrderID=db.addLessonPurchase(mid, lid, sessions, remaining);
+            int newOrderID = db.addLessonPurchase(mid, lid, sessions, remaining);
             System.out.println("Lesson Purchase Added. New Order ID: " + newOrderID + "\n");
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage() + "\n");
@@ -213,14 +217,23 @@ public class SkiResort {
         }
     }
 
-    //helper
-    private int readInt() {
-        while (!in.hasNextInt()) {
-            System.out.print("Please enter a number: ");
-            in.next();
+    private void deleteLessonPurchase() {
+        System.out.print("Order ID: "); int oid = readInt();
+        try {
+            if (db.deleteLessonPurchase(oid)) System.out.println("Lesson Purchase deleted and archived.\n");
+            else System.out.println("Cannot delete lesson purchase (unused sessions remain).\n");
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
-        int v =in.nextInt(); in.nextLine();
-        return v;
+    }
+
+    private void getLessonsForMember() {
+        System.out.print("Member ID: "); int mid = readInt();
+        try {
+            db.getLessonsForMember(mid);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n");
+        }
     }
 
     private void rentalMenu() {
@@ -336,4 +349,13 @@ public class SkiResort {
     private void deleteEquipmentRecord() {
     }
 
+    //helper
+    private int readInt() {
+        while (!in.hasNextInt()) {
+            System.out.print("Please enter a number: ");
+            in.next();
+        }
+        int v =in.nextInt(); in.nextLine();
+        return v;
+    }
 }
