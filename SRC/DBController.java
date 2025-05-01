@@ -466,7 +466,7 @@ public class DBController {
         updateRentTime = String.format(updateRentTime,rentalID);
         int numRowsUpdated = myStmt.executeUpdate(updateRentTime);
 
-        int rentalArchiveID = 0;
+        int rentalArchiveID = -1;
 
         if(numRowsUpdated > 0) {
          // Next create a new entrie in the log table with the previous state.
@@ -506,7 +506,7 @@ public class DBController {
         updateRent = String.format(updateRent,rentalID);
         int numRowsUpdated = myStmt.executeUpdate(updateRent);
 
-        int rentalArchiveID = 0;
+        int rentalArchiveID = -1;
 
         if(numRowsUpdated > 0) {
          // Next create a new entrie in the log table with the previous state.
@@ -571,7 +571,7 @@ public class DBController {
 
         myStmt.close();
 
-        return numRowsDeleted;
+        return rentalArchiveID;
 
 
     }
@@ -582,6 +582,20 @@ public class DBController {
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
         // TODO you were here ACTUALLY FILL IN THESE CHECKS.
+        String equipSzString = Double.toString(size);
+        int decimalInd = equipSzString.indexOf(".");
+        if(type.equals("boot")) {
+            if(equipSzString.charAt(decimalInd+1)!='0'&&equipSzString.charAt(decimalInd+1)!='5'){
+                myStmt.close();
+                throw new IllegalStateException("Given boot for equipment but size was not .5 or .0!");
+            }
+        } else {
+            if(size != (int) size) {
+                myStmt.close();
+                throw new IllegalStateException("Anything other than a boot must be an integer size!");
+            }
+        }
+
         if(type.equals("boot") && (size < 4.0 || size > 14.0)) {
             myStmt.close();
             throw new IllegalStateException("Given boot for equipment but size was not within valid range!");
@@ -594,7 +608,7 @@ public class DBController {
         } else if(type.equals("snowboard") && (size < 90.0 || size > 178.0)){
              myStmt.close();
              throw new IllegalStateException("Given snowboard ski for equipment update but size was not within valid range!");
-        } else if(type.equals("helmet") || type.equals("goggle") || type.equals("glove")) {
+        } else if(type.equals("helmet") || type.equals("goggle") || type.equals("glove")){
             if(size < 1.0 || size > 3.0) {
                 myStmt.close();
                 throw new IllegalStateException("Given "+type +" for equipment update but size was not within valid range!");
@@ -605,8 +619,9 @@ public class DBController {
         // Next we will get the next equipment id.
         int equipmentID = getNextId("Equipment","tylergarfield");
         // Now actually add the new entry to the relaton.
-        String addToTable = "insert into tylergarfield.Equipment  values(%d,%s,%f,%s)";
+        String addToTable = "insert into tylergarfield.Equipment values(%d,'%s',%.1f,'%s')";
         addToTable = String.format(addToTable,equipmentID,type,size,name);
+        //System.out.println("Formated equipment insert '"+addToTable+"' ");
         // Now execute the query.
         int numRowsAffected = myStmt.executeUpdate(addToTable);
 
@@ -651,7 +666,7 @@ public class DBController {
         removeQuery = String.format(removeQuery,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(removeQuery);
         myStmt.close();
-        return numRowsAffected;
+        return equipmentArchiveID;
     }
 
     public int updateEquipmentType(int equipmentID,String newType) throws SQLException{
@@ -669,7 +684,7 @@ public class DBController {
         int numRowsAffected = myStmt.executeUpdate(updateType);
 
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -698,7 +713,7 @@ public class DBController {
         int numRowsAffected = myStmt.executeUpdate(updateName);
 
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -752,7 +767,7 @@ public class DBController {
         updateSize = String.format(updateSize,newSize,equipmentID);
         numRowsAffected = myStmt.executeUpdate(updateSize);
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -844,5 +859,63 @@ public class DBController {
         myStmt.close();
         return numRowsAffected;
     }
+
+
+    public void runQueryTwo(int skiPassID) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        // First thing we need to do is determine if the given ski pass id is actually a valid
+        // active ski pass the foreign key constraint on equipmentID will take care of that check.
+        String checkSkiPassValid = "select 1 from mandyjiang.SkiPass where pass_id=%d";
+        checkSkiPassValid = String.format(checkSkiPassValid,skiPassID);
+        ResultSet res = myStmt.executeQuery(checkSkiPassValid);
+
+        // Check the result to determine if there is a entry with the ski pass.
+        if(!res.next()) {myStmt.close();throw new SQLException("Given pass id was not in ski pass table!");}
+
+        String queryLiftRides = "select lift_name, entrance_time from mandyjiang.Entry where pass_id=%d";
+        queryLiftRides = String.format(queryLiftRides,skiPassID);
+        res = myStmt.executeQuery(queryLiftRides);
+
+        System.out.println("************************************************************");
+
+        String colHeadersLift = "%-20s %-20s";
+        colHeadersLift = String.format(colHeadersLift,"Lift name","Entered At Time");
+        System.out.println(colHeadersLift);
+
+        String colDashes = "%-20s %-20s";
+        colDashes = String.format(colDashes,"-","-");
+        System.out.println(colDashes);
+        if(res!=null) {
+            while(res.next()) {
+                String nextTup = "%-20s %-20s";
+                nextTup = String.format(nextTup,res.getString("lift_name"),res.getString("entrance_time"));
+                System.out.println(nextTup);
+	    }
+        }
+
+        System.out.println();
+
+        String colHeadersRent = "%-20s %-20s";
+        colHeadersRent = String.format(colHeadersRent,"Gear Name","Rented At Time");
+        System.out.println(colHeadersRent);
+        System.out.println(colDashes);
+
+        String queryRentalRecords = "select name,rentalTime from tylergarfield.Rental join " +
+				    "tylergarfield.Equipment on tylergarfield.Rental.equipmentID = " +
+				    "tylergarfield.Equipment.equipmentID where skiPassID=%d";
+        queryRentalRecords = String.format(queryRentalRecords,skiPassID);
+        res = myStmt.executeQuery(queryRentalRecords);
+
+        if(res!=null) {
+            while(res.next()) {
+                String nextTup = "%-20s %-20s";
+                nextTup = String.format(nextTup,res.getString("name"),res.getString("rentalTime"));
+                System.out.println(nextTup);
+            }
+        }
+
+        System.out.println("************************************************************");
+    }
+
 }
 
