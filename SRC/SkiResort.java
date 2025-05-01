@@ -177,8 +177,8 @@ public class SkiResort {
         System.out.print(
             """
             Lessons:
-            1. Add Lesson Purchase
-            2. Adjust Lesson Purchase
+            1. Purchase Lesson
+            2. Update Sessions
             3. Delete (archive)
             0. Back
             Enter Option >\
@@ -267,7 +267,7 @@ public class SkiResort {
             2. Update Equipment Type (admin only)
             3. Update Equipment Name (admin only)
 	    4. Update Equipment Size (admin only)
-            3. Delete (archive)
+            5. Delete (archive)
             0. Back
             Enter Option >\
             """);
@@ -356,7 +356,7 @@ public class SkiResort {
             Queries:
             1. Get Lessons by Member ID
             2. Get Ski Pass Rides and Rentals
-            3. Get Intermediate Trails
+            3. Get Open Intermediate Trails
             4. Unknown
             0. Back
             Enter Option >\
