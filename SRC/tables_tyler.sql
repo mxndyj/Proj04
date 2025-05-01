@@ -1,10 +1,32 @@
 -- Firs call drop on the tables so that if this has to be re-ran than we can reset everything.
 DROP TABLE tylergarfield.Rental;
+DROP TABLE tylergarfield.Rental_Archive;
 DROP TABLE tylergarfield.Equipment;
+DROP TABLE tylergarfield.Equipment_Archive;
 DROP SEQUENCE  tylergarfield.RENTAL_SEQ;
 DROP SEQUENCE  tylergarfield.EQUIPMENT_SEQ;
 DROP SEQUENCE  tylergarfield.RENTAL_ARCHIVE_SEQ;
 DROP SEQUENCE  tylergarfield.EQUIPMENT_ARCHIVE_SEQ;
+
+-- Next is the equipment relation.
+create table tylergarfield.Equipment (
+        equipmentID INT primary key,
+        equip_type varchar2(25) CHECK(equip_type IN ('boot','pole','snowboard','alpine ski','helmet','goggle','glove')),
+        equip_size NUMBER(2,1) NOT NULL, -- Will need to add a check on the use side to only allow records with valid sizes to be
+                                -- inserted. I feel like trying to do a constraint with a bunch of ifs in here would
+                                -- be way harder.
+        name varchar2(255) NOT NULL
+);
+
+create table tylergarfield.Equipment_Archive (
+        equipArchiveID INT primary key,
+        equipmentID INT NOT NULL,
+        equip_type varchar2(25) CHECK(equip_type IN ('boot','pole','snowboard','alpine ski','helmet','goggle','glove')),
+        equip_size NUMBER(2,1) NOT NULL,
+        name varchar2(255) NOT NULL,
+        changeState NUMBER(1) NOT NULL CHECK(changeState IN(0,1,2)) -- same state values as rental relation archive.
+);
+
 
 -- Second we will create the needed tables for the rental and gear info.
 create table tylergarfield.Rental (
@@ -12,7 +34,7 @@ create table tylergarfield.Rental (
 	skiPassID INT NOT NULL,
 	equipmentID INT NOT NULL,
 	rentalTime TIMESTAMP DEFAULT SYSTIMESTAMP,
-	returnStatus NUMBER(1,0) NOT NULL,
+	returnStatus NUMBER(1) NOT NULL CHECK(returnStatus IN(1,0)),
 	FOREIGN KEY(equipmentID) REFERENCES tylergarfield.Equipment(equipmentID)
 );
 
@@ -23,9 +45,9 @@ create table tylergarfield.Rental_Archive (
         skiPassID INT NOT NULL,
         equipmentID INT NOT NULL,
         rentalTime TIMESTAMP DEFAULT SYSTIMESTAMP,
-        returnStatus NUMBER(1,0) NOT NULL,
-	arhciveTime TIMESTAMP DEFAULT SYSTIMESTAMP
-	changeState NUMBER(0,1,2) NOT NULL -- 0 is added, 1 is updated, 2 is deleted.
+        returnStatus NUMBER(1) NOT NULL CHECK(returnStatus IN(1,0)),
+	arhciveTime TIMESTAMP DEFAULT SYSTIMESTAMP,
+	changeState NUMBER(1) NOT NULL CHECK(changeState IN(0,1,2)) -- 0 is added, 1 is updated, 2 is deleted.
 );
 
 -- Next create a trigger that will throw an exception if a rental is attempted to
@@ -48,30 +70,13 @@ create table tylergarfield.Rental_Archive (
 --/
 
 
--- Next is the equipment relation.
-create table tylergarfield.Equipment (
-	equipmentID INT primary key,
-	equip_type INT varchar2(25) CHECK(equip_type IN ('boot','pole','snowboard','alpine ski','helmet','goggle','glove')),
-	size INT NOT NULL, -- Will need to add a check on the use side to only allow records with valid sizes to be
-				-- inserted. I feel like trying to do a constraint with a bunch of ifs in here would
-				-- be way harder.
-	name varchar2(255) NOT NULL
-);
 
-create table tylergarfield.Equipment_Archive (
-	equipArchiveID INT primary key,
-	equipmentID INT primary key,
-        equip_type INT varchar2(25) NOT NULL,
-        size INT NOT NULL,
-        name varchar2(255) NOT NULL
-	changeState NUMBER(0,1,2) NOT NULL -- same state values as rental relation archive.
-);
 
 -- Now create the sequences that will be the unique artificial rentalID and equipmentID's
 create sequence tylergarfield.RENTAL_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOMAXVALUE;
-create sequence tylergarfield.EQUIPMENT_SEQ START WITH 1 INCREMENT BY 1 NOCHACE NOMAXVALUE;
-create sequence tylergarfield.RENTAL_ARCHIVE_SEQ START WITH 1 INCREMENT BY 1 NOCHACE NOMAXVALUE;
-create sequence tylergarfield.EQUIPMENT_ARCHIVE_SEQ START WITH 1 INCREMENT BY 1 NOCHACE NOMAXVALUE;
+create sequence tylergarfield.EQUIPMENT_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOMAXVALUE;
+create sequence tylergarfield.RENTAL_ARCHIVE_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOMAXVALUE;
+create sequence tylergarfield.EQUIPMENT_ARCHIVE_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOMAXVALUE;
 
 -- Finally grant all access to both tables to the public.
 GRANT SELECT, INSERT, DELETE ON tylergarfield.Rental TO PUBLIC;

@@ -264,6 +264,8 @@ public class DBController {
         return rentalID;
     }
 
+    // TODO add function here to modify rental time here!!!!!!
+
     // Function returns 1 for a normal error and 2 if the givne rentalID does not exist.
     public int returnEquipment(int rentalID) throws SQLException,IllegalStateException{
         Statment myStmt = dbconn.createStatment();
@@ -477,11 +479,21 @@ public class DBController {
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
         // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         if(equipType.equals("boot") && (newSize < 4.0 || newSize > 14.0) {
+            myStmt.close();
+            throw new IllegalStateException("Given boot for equipment update but size was not within valid range!");
         } else if(equipType.equals("pole") && (newSize < 100.0 || newSize > 140.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given pole for equipment update but size was not within valid range!");
         } else if(equipType.equals("alpine ski") && (newSize < 115.0 || newSize > 200.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given alpine ski for equipment update but size was not within valid range!");
         } else if(equipType.equals("snowboard") && (newSize < 90.0 || newSize > 178.0)){
+             myStmt.close();
+             throw new IllegalStateException("Given snowboard ski for equipment update but size was not within valid range!");
         } else if((equipType.equals("helmet") || (equipType.equals("goggle") || (equipType.equals("glove")) {
             if(newSize < 1.0 || newSize > 3.0) {
+                myStmt.close();
+                throw new IllegalStateException("Given alpine "+equipType +" for equipment update but size was not within valid range!");
             }
         }
 
