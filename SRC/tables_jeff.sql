@@ -38,6 +38,7 @@ create table jeffreylayton.LessonPurchase (
     lesson_id int not null,
     total_sessions int not null,
     remaining_sessions int not null,
+    foreign key(member_id) references mandyjiang.Member(member_id) on delete cascade,
     foreign key(lesson_id) references jeffreylayton.Lesson(lesson_id)
 );
 

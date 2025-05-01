@@ -15,11 +15,11 @@ create sequence mandyjiang.SKIPASS_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYC
 create sequence mandyjiang.SKIPASS_ARCHIVE_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
 
 create table mandyjiang.Member (
-    member_id           INT PRIMARY KEY,
-    name                varchar2(100) NOT NULL,
-    phone               varchar2(20),
-    email               varchar2(100) UNIQUE,
-    date_of_birth     DATE,
+    member_id       INT PRIMARY KEY,
+    name        varchar2(100) NOT NULL,
+    phone       varchar2(20),
+    email       varchar2(100) UNIQUE,
+    date_of_birth   DATE,
     emergency_contact varchar2(100)
 );
 
@@ -41,9 +41,9 @@ create table mandyjiang.SkiPass (
 );
 
 create table mandyjiang.SkiPass_Archive (
-    SParchive_id      INT,
-    pass_id           INT NOT NULL,
-    member_id         INT,
+    SParchive_id    INT,
+    pass_id         INT NOT NULL,
+    member_id       INT,
     type            VARCHAR2(20) NOT NULL references mandyjiang.PassType(type),
     remaining_uses  INT,
     purchase_time   TIMESTAMP,
@@ -57,9 +57,9 @@ create table mandyjiang.Trail (
     trail_name     varchar2(100) PRIMARY KEY,
     start_location varchar2(100),
     end_location   varchar2(100),
-    status         varchar2(10) CHECK (status IN ('OPEN','CLOSED')),
-    difficulty     varchar2(20) CHECK (difficulty IN ('BEGINNER','INTERMEDIATE','EXPERT')),
-    category       varchar2(50) CHECK (category IN ('GROOMED','PARK','MOGULS','GLADE'))
+    status      varchar2(10) CHECK (status IN ('OPEN','CLOSED')),
+    difficulty  varchar2(20) CHECK (difficulty IN ('BEGINNER','INTERMEDIATE','EXPERT')),
+    category    varchar2(50) CHECK (category IN ('GROOMED','PARK','MOGULS','GLADE'))
 );
 
 create table mandyjiang.Lift (
@@ -79,8 +79,8 @@ create table mandyjiang.LiftTrail (
 );
 
 create table mandyjiang.Entry (
-    lift_name     varchar2(100),
-    pass_id       INT,
+    lift_name   varchar2(100),
+    pass_id     INT,
     entrance_time TIMESTAMP,
     PRIMARY KEY(lift_name,pass_id,entrance_time),
     FOREIGN KEY(lift_name) references mandyjiang.Lift(lift_name),
