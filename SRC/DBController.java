@@ -360,7 +360,7 @@ public class DBController {
         insert into jeffreylayton.LessonPurchase_Archive (
             order_id, member_id, lesson_id, total_sessions, remaining_sessions
         )
-        select order_id, member_id, lesson_id, total_sessions, remaining_sessions
+        select order_id, member_id, lesson_id, total_sessions
         from jeffreylayton.LessonPurchase
         where order_id = ?
         """;
