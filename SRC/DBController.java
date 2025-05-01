@@ -693,5 +693,84 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    public int addProperty(String type, int income)throws SQLException,IllegalArgumentException {
+        Statement myStmt = dbconn.createStatement();
+        if (type == "free lot" && income != 0){
+            myStmt.close();
+            throw new IllegalStateException("A free parking lot cannot have any daily income");
+        }
+        int propertyID = getNextId("Property","ascherer");
+        
+        String addToTable = "insert into ascherer.Property values(%d,%s,%d)";
+        addToTable = String.format(addToTable,propertyID,type,income);
+        int rowsAffected = myStmt.executeUpdate(addToTable);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int updatePropetyIncome(int propertyID, int newIncome) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        String propertyType = "";
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+        else{
+            propertyType = res.getString("property_type");
+        }
+
+        if (propertyType == "free lot" && newIncome != 0){
+            myStmt.close();
+            throw new IllegalStateException("A free parking lot cannot have any daily income");
+        }
+
+        String updateIncome = "update ascherer.Property set income=%d where propertyID=%d";
+        updateIncome = String.format(updateIncome,newIncome,propertyID);
+        int rowsAffected = myStmt.executeUpdate(updateIncome);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int updatePropertyType(int propertyID, String newType) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+
+        if (newType == "free lot"){
+            updatePropetyIncome(propertyID, 0);
+        }
+
+        String updateType = "update ascherer.Property set property_type='%s' where propertyID=%d";
+        updateType = String.format(updateType,newType,propertyID);
+        int rowsAffected = myStmt.executeUpdate(updateType);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int deleteProperty(int propertyID) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+
+        String deleteQuery = "delete from tylergarfield.Equipment where equipmentID=%d";
+        deleteQuery = String.format(deleteQuery,propertyID);
+        int numRowsAffected = myStmt.executeUpdate(deleteQuery);
+        myStmt.close();
+        return numRowsAffected;
+    }
+
 }
 
