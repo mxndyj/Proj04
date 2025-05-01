@@ -442,22 +442,14 @@ public class SkiResort {
         double equipSize = 0.0;
         boolean gotEquipSize = false;
 
-        /*
+        
         while(!gotEquipSize) {
               System.out.print("\t\tEquipment size: ");
               if(in.hasNextDouble()) {
                   equipSize = Double.parseDouble(in.nextLine());
-                  String equipSzString = Double.toString(equipSize);
-                  int decimalInd = equipSzString.indexOf(".");
-                  // Check that the size is also a whole number or .5 only if it is a ski boot.
-                  if(type.equals("boot")) {
-                      if(equipSzString.charAt(decimalInd+1)=='0'||equipSzString.charAt(decimalInd+1)=='5'){gotEquipSize=true;}
-                  } else {
-                      if(equipSize == (int) equipSize) {gotEquipSize=true;}
-                  }
               } else { in.nextLine();}
         }
-*/
+
           // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.updateEquipmentSize(equipmentID,equipSize);
@@ -482,6 +474,15 @@ public class SkiResort {
             System.out.println("\t\tError: " + e.getMessage() + "\n");
         }
 
+    }
+
+    private void queryTwo() {
+        System.out.print("\t\t Enter a valid ski pass id: ");int skiPassID =readInt();
+        try{
+            db.runQueryTwo(skiPassID);
+        } catch(Exception e) {
+            System.out.println("\t\tError: " + e.getMessage() + "\n");
+        }
     }
 
     //helper
