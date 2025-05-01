@@ -393,7 +393,7 @@ public class DBController {
         updateRentTime = String.format(updateRentTime,rentalID);
         int numRowsUpdated = myStmt.executeUpdate(updateRentTime);
 
-        int rentalArchiveID = 0;
+        int rentalArchiveID = -1;
 
         if(numRowsUpdated > 0) {
          // Next create a new entrie in the log table with the previous state.
@@ -433,7 +433,7 @@ public class DBController {
         updateRent = String.format(updateRent,rentalID);
         int numRowsUpdated = myStmt.executeUpdate(updateRent);
 
-        int rentalArchiveID = 0;
+        int rentalArchiveID = -1;
 
         if(numRowsUpdated > 0) {
          // Next create a new entrie in the log table with the previous state.
@@ -498,7 +498,7 @@ public class DBController {
 
         myStmt.close();
 
-        return numRowsDeleted;
+        return rentalArchiveID;
 
 
     }
@@ -532,8 +532,9 @@ public class DBController {
         // Next we will get the next equipment id.
         int equipmentID = getNextId("Equipment","tylergarfield");
         // Now actually add the new entry to the relaton.
-        String addToTable = "insert into tylergarfield.Equipment  values(%d,%s,%f,%s)";
+        String addToTable = "insert into tylergarfield.Equipment values(%d,'%s',%.1f,'%s')";
         addToTable = String.format(addToTable,equipmentID,type,size,name);
+        //System.out.println("Formated equipment insert '"+addToTable+"' ");
         // Now execute the query.
         int numRowsAffected = myStmt.executeUpdate(addToTable);
 
@@ -578,7 +579,7 @@ public class DBController {
         removeQuery = String.format(removeQuery,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(removeQuery);
         myStmt.close();
-        return numRowsAffected;
+        return equipmentArchiveID;
     }
 
     public int updateEquipmentType(int equipmentID,String newType) throws SQLException{
@@ -596,7 +597,7 @@ public class DBController {
         int numRowsAffected = myStmt.executeUpdate(updateType);
 
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -625,7 +626,7 @@ public class DBController {
         int numRowsAffected = myStmt.executeUpdate(updateName);
 
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -679,7 +680,7 @@ public class DBController {
         updateSize = String.format(updateSize,newSize,equipmentID);
         numRowsAffected = myStmt.executeUpdate(updateSize);
          // If the entry was successfully updated add the update to the log.
-        int equipmentArchiveID = 0;
+        int equipmentArchiveID = -1;
         if(numRowsAffected > 0 ) {
             equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
             String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
@@ -694,4 +695,3 @@ public class DBController {
     }
 
 }
-
