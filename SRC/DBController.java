@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DBController {
     private static final String URL="jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
@@ -239,6 +240,61 @@ public class DBController {
         return left;
     }
 
+
+    public void getIntermediateTrails() throws SQLException {
+        String sql = """
+        select t.trail_name, t.difficulty, t.category, l.lift_name
+        from mandyjiang.Trail t
+        join mandyjiang.LiftTrail lt 
+          on lt.trail_name = t.trail_name
+        join mandyjiang.Lift l
+          on l.lift_name = lt.lift_name
+        where (t.difficulty = 'INTERMEDIATE' or t.difficulty = 'BEGINNER') 
+          and t.status = 'OPEN' 
+          and l.status = 'OPEN'
+        order by t.trail_name
+        """;
+
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            System.err.println("tigkajs;f");
+            try (ResultSet rs = p.executeQuery()) {
+                String trail = "";
+                String category = "";
+                String difficulty = "";
+                ArrayList lifts = new ArrayList<String>();
+
+                while (rs.next()) {
+                    String newTrail = rs.getString("trail_name");
+                    // Only print trail data once all lifts have been given
+                    if (trail.length() != 0 && trail.compareTo(newTrail) != 0) {
+                        System.out.println("Trail: " + trail);
+                        System.out.println("  Difficulty:\t" + difficulty);
+                        System.out.println("  Category:\t" + category);
+                        System.out.println("  Open Lifts:");
+                        if (lifts.size() > 0) {
+                            for (int i = 0; i < lifts.size(); i++) {
+                                System.out.println("\t" + lifts.get(i));
+                            }
+                        } else {
+                            System.out.println("\tNone.");
+                        }
+
+                        lifts = new ArrayList<String>();
+                    } else {
+                        category = rs.getString("category");
+                        difficulty = rs.getString("difficulty");
+                        String newLift = rs.getString("lift_name");
+                        if (lifts.indexOf(newLift) != -1) {
+                            lifts.add(newLift);
+                        }
+                    }
+
+                    trail = newTrail;
+                }            
+            }
+        }
+    }
+
     // TODO implement these.
     // public int addRentalRecord(int skiPassID, int equipmentID) {
     // }
@@ -257,7 +313,7 @@ public class DBController {
 
     // Lesson + Lesson Purchase
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
-        int id = getNextId("LessonPurchase", "jeffreylayton");
+        int id = getNextId("jLessonPurchasej", "jeffreylayton");
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
         try (PreparedStatement stmt= dbconn.prepareStatement(sql)) {
             stmt.setInt(1, id);

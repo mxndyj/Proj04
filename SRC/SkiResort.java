@@ -32,7 +32,8 @@ public class SkiResort {
                 3. Lift Entry Scan
                 4. Purchase Lessons
                 5. Gear Rental
-		6. New Gear
+		        6. New Gear
+                8. Queries
                 0. Quit
                 Enter Option : """);
             int choice =readInt();
@@ -42,7 +43,8 @@ public class SkiResort {
                 case 3 -> liftEntry();
                 case 4 -> purchaseLessonMenu();
                 case 5 -> rentalMenu();
-		case 6 -> equipmentMenu();
+		        case 6 -> equipmentMenu();
+                case 8 -> queriesMenu();
                 case 0 -> { System.out.println("Goodbye!"); return; }
                 default -> System.out.println("Invalid choice.\n");
             }
@@ -178,7 +180,6 @@ public class SkiResort {
             1. Add Lesson Purchase
             2. Adjust Lesson Purchase
             3. Delete (archive)
-            4. Get Lessons for Member
             0. Back
             Enter Option >\
             """);
@@ -187,7 +188,6 @@ public class SkiResort {
             case 1 -> addLessonPurchase();
             case 2 -> adjustLessonPurchase();
             case 3 -> deleteLessonPurchase();
-            case 4 -> getLessonsForMember();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }
@@ -348,6 +348,38 @@ public class SkiResort {
 
     private void deleteEquipmentRecord() {
     }
+
+
+    private void queriesMenu() {
+        System.out.print(
+            """
+            Queries:
+            1. Get Lessons by Member ID
+            2. Get Ski Pass Rides and Rentals
+            3. Get Intermediate Trails
+            4. Unknown
+            0. Back
+            Enter Option >\
+            """);
+        int choice = readInt();
+        switch (choice) {
+            case 1 -> getLessonsForMember();
+            case 2 -> {}
+            case 3 -> getIntermediateTrails();
+            case 4 -> updateRentalTime();
+            case 0 -> {} // back to main menu
+            default -> System.out.println("Invalid choice.\n");
+        }
+    }
+
+    private void getIntermediateTrails() {
+        try {
+           db.getIntermediateTrails(); 
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
 
     //helper
     private int readInt() {
