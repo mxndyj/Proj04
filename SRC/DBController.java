@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DBController {
     private static final String URL="jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
@@ -239,25 +240,69 @@ public class DBController {
         return left;
     }
 
-    // TODO implement these.
-    // public int addRentalRecord(int skiPassID, int equipmentID) {
-    // }
-    //
-    // public int deleteRentalRecord(int rentalID) {
-    // }
-    //
-    // public int addEquipmentRecord(String type, int size, String name) {
-    // }
-    //
-    // public int deleteEquipmentRecord(int equipmentID) {
-    // }
+
+    public void getIntermediateTrails() throws SQLException {
+        String sql = """
+        select t.trail_name, t.difficulty, t.category, l.lift_name
+        from mandyjiang.Trail t
+        join mandyjiang.LiftTrail lt 
+          on lt.trail_name = t.trail_name
+        join mandyjiang.Lift l
+          on l.lift_name = lt.lift_name
+        where (t.difficulty = 'INTERMEDIATE' or t.difficulty = 'BEGINNER') 
+          and t.status = 'OPEN' 
+          and l.status = 'OPEN'
+        order by t.trail_name
+        """;
+
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            System.err.println("tigkajs;f");
+            try (ResultSet rs = p.executeQuery()) {
+                String trail = "";
+                String category = "";
+                String difficulty = "";
+                ArrayList lifts = new ArrayList<String>();
+
+                while (rs.next()) {
+                    String newTrail = rs.getString("trail_name");
+                    // Only print trail data once all lifts have been given
+                    if (trail.length() != 0 && trail.compareTo(newTrail) != 0) {
+                        System.out.println("Trail: " + trail);
+                        System.out.println("  Difficulty:\t" + difficulty);
+                        System.out.println("  Category:\t" + category);
+                        System.out.println("  Open Lifts:");
+                        if (lifts.size() > 0) {
+                            for (int i = 0; i < lifts.size(); i++) {
+                                System.out.println("\t" + lifts.get(i));
+                            }
+                        } else {
+                            System.out.println("\tNone.");
+                        }
+
+                        lifts = new ArrayList<String>();
+                    } else {
+                        category = rs.getString("category");
+                        difficulty = rs.getString("difficulty");
+                        String newLift = rs.getString("lift_name");
+                        if (lifts.indexOf(newLift) != -1) {
+                            lifts.add(newLift);
+                        }
+                    }
+
+                    trail = newTrail;
+                }            
+            }
+        }
+    }
 
 
     // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
 
     // Lesson + Lesson Purchase
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
+
         int id = getNextId("LessonPurchase", "jeffreylayton");
+
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
         try (PreparedStatement stmt= dbconn.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -284,6 +329,22 @@ public class DBController {
     }
 
     public boolean deleteLessonPurchase(int oid) throws SQLException {
+        String checkSql = "select remaining_sessions from jeffreyLayton.LessonPurchase where order_id = ?";
+        try (PreparedStatement c = dbconn.prepareStatement(checkSql)) {
+            c.setInt(1, oid);
+            try (ResultSet rs =  c.executeQuery()) {
+                if (!rs.next()) {
+                    throw new IllegalStateException("Lesson Purchase does not exist");
+                } else {
+                    int sessions = rs.getInt("remaining_sessions");
+                    if (sessions > 0) {
+                    throw new IllegalStateException("Lesson Purchase contains remaining sessions");
+                    }
+                }
+            }
+        }
+
+
         String archiveSql = """
         insert into jeffreylayton.LessonPurchase_Archive (
             order_id, member_id, lesson_id, total_sessions, remaining_sessions
@@ -309,11 +370,13 @@ public class DBController {
 
     public void getLessonsForMember(int mid) throws SQLException {
         String sql = """
-        select e.name as "instructor_name", l.time, lp.total_sessions, lp.remaining_sessions
+
+        select l.lesson_id, e.name as "instructor_name", l.time, sum(lp.total_sessions) as "total_sessions", sum(lp.remaining_sessions) as "remaining_sessions"
         from jeffreylayton.LessonPurchase lp
         join jeffreylayton.Lesson l on l.lesson_id = lp.lesson_id
         join jeffreylayton.Employee e on e.employee_id = l.instructor_id
         where lp.member_id=?
+        group by l.lesson_id, e.name, l.time
         """;
         
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
@@ -707,6 +770,86 @@ public class DBController {
         myStmt.close();
         return equipmentArchiveID;
     }
+
+    public int addProperty(String type, int income)throws SQLException,IllegalArgumentException {
+        Statement myStmt = dbconn.createStatement();
+        if (type == "free lot" && income != 0){
+            myStmt.close();
+            throw new IllegalStateException("A free parking lot cannot have any daily income");
+        }
+        int propertyID = getNextId("Property","ascherer");
+        
+        String addToTable = "insert into ascherer.Property values(%d,'%s',%d)";
+        addToTable = String.format(addToTable,propertyID,type,income);
+        int rowsAffected = myStmt.executeUpdate(addToTable);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int updatePropetyIncome(int propertyID, int newIncome) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        String propertyType = "";
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+        else{
+            propertyType = res.getString("property_type");
+        }
+
+        if (propertyType == "free lot" && newIncome != 0){
+            myStmt.close();
+            throw new IllegalStateException("A free parking lot cannot have any daily income");
+        }
+
+        String updateIncome = "update ascherer.Property set daily_income=%d where propertyID=%d";
+        updateIncome = String.format(updateIncome,newIncome,propertyID);
+        int rowsAffected = myStmt.executeUpdate(updateIncome);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int updatePropertyType(int propertyID, String newType) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+
+        if (newType == "free lot"){
+            updatePropetyIncome(propertyID, 0);
+        }
+
+        String updateType = "update ascherer.Property set property_type='%s' where propertyID=%d";
+        updateType = String.format(updateType,newType,propertyID);
+        int rowsAffected = myStmt.executeUpdate(updateType);
+        if (rowsAffected <= 0){
+            propertyID = -1;
+        }
+        return propertyID;
+    }
+
+    public int deleteProperty(int propertyID) throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+        String checkPID = "select property_type from ascherer.Property where propertyID=%d";
+        checkPID = String.format(checkPID,propertyID);
+        ResultSet res = myStmt.executeQuery(checkPID);
+
+        if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
+
+        String deleteQuery = "delete from tylergarfield.Equipment where equipmentID=%d";
+        deleteQuery = String.format(deleteQuery,propertyID);
+        int numRowsAffected = myStmt.executeUpdate(deleteQuery);
+        myStmt.close();
+        return numRowsAffected;
+    }
+
 
     public void runQueryTwo(int skiPassID) throws SQLException{
         Statement myStmt = dbconn.createStatement();

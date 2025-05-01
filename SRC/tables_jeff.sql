@@ -79,18 +79,18 @@ VALUES (12, 3, 1, 0, TO_TIMESTAMP('2025-05-07 14:00:00','yyyy-mm-dd hh24:mi:ss')
 
 -- LessonPurchases
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
-VALUES (1001, 501, 10, 5, 5);
+VALUES (1001, 15, 10, 5, 5);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
-VALUES (1004, 501, 11, 4, 3);
+VALUES (1004, 15, 11, 4, 3);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
-VALUES (1005, 501, 12, 5, 3);
+VALUES (1005, 15, 12, 5, 3);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
-VALUES (1002, 502, 11, 10, 4);
+VALUES (1002, 14, 11, 10, 4);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
-VALUES (1003, 503, 12, 8, 8);
+VALUES (1003, 12, 12, 8, 8);
 
 commit;
