@@ -35,7 +35,10 @@ create table tylergarfield.Rental (
 	equipmentID INT NOT NULL,
 	rentalTime TIMESTAMP DEFAULT SYSTIMESTAMP,
 	returnStatus NUMBER(1) NOT NULL CHECK(returnStatus IN(1,0)),
+<<<<<<< HEAD
+=======
 	FOREIGN KEY(skiPassID) REFERENCES mandyjiang.SkiPass(pass_id) on delete cascade,
+>>>>>>> e14e7de125424b711ea975a368c2f678d13f4216
 	FOREIGN KEY(equipmentID) REFERENCES tylergarfield.Equipment(equipmentID)
 );
 
@@ -85,4 +88,8 @@ GRANT SELECT, INSERT, DELETE ON tylergarfield.Equipment TO PUBLIC;
 GRANT SELECT ON tylergarfield.RENTAL_SEQ TO PUBLIC;
 GRANT SELECT ON tylergarfield.EQUIPMENT_SEQ TO PUBLIC;
 GRANT SELECT ON tylergarfield.RENTAL_ARCHIVE_SEQ TO PUBLIC;
+<<<<<<< HEAD
 GRANT SELECT ON tylergarfield.EQUIPMENT_ARCHIVE_SEQ TO PUBLIC;
+=======
+GRANT SELECT ON tylergarfield.EQUIPMENT_ARCHIVE_SEQ TO PUBLIC;
+>>>>>>> e14e7de125424b711ea975a368c2f678d13f4216
