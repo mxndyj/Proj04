@@ -20,14 +20,14 @@ create table jeffreylayton.Employee (
     age int not null,
     salary int not null,
     sex varchar2(1) not null,
-    ethnicity varchar2(50) not null
+    ethnicity varchar2(50) not null,
+    certification_level Number(1) check (certification_level in (1, 2, 3) or certification_level is null)
 );
 
 create table jeffreylayton.Lesson (
     lesson_id int primary key,
     instructor_id int not null,
-    certification_level Number(1),
-    private Number(1) not null,
+    private Number(1) not null check (private in (0, 1)),
     time date not null,
     foreign key(instructor_id) references jeffreylayton.Employee(employee_id)
 );
@@ -47,7 +47,6 @@ create table jeffreylayton.LessonPurchase_Archive (
     member_id int not null,
     lesson_id int not null,
     total_sessions int not null,
-    remaining_sessions int not null,
     foreign key(lesson_id) references jeffreylayton.Lesson(lesson_id)
 );
 
@@ -58,24 +57,24 @@ grant select, insert, update, delete on jeffreylayton.LessonPurchase_Archive to 
 
 -- Employees
 INSERT INTO jeffreylayton.employee (
-  employee_id, position, start_date, name, age, salary, sex, ethnicity
-) VALUES (1, 'Instructor', TO_DATE('2023-01-15','yyyy-mm-dd'), 'Alice Person', 29, 55000, 'f', 'asian');
+  employee_id, position, start_date, name, age, salary, sex, ethnicity, certification_level)
+VALUES (1, 'Instructor', TO_DATE('2023-01-15','yyyy-mm-dd'), 'Alice Person', 29, 55000, 'f', 'asian', 1);
 
-INSERT INTO jeffreylayton.employee (employee_id, position, start_date, name, age, salary, sex, ethnicity)
-VALUES (2, 'Instructor', TO_DATE('2022-06-01','yyyy-mm-dd'), 'Bob Person', 35, 60000, 'm', 'caucasian');
+INSERT INTO jeffreylayton.employee (employee_id, position, start_date, name, age, salary, sex, ethnicity, certification_level)
+VALUES (2, 'Instructor', TO_DATE('2022-06-01','yyyy-mm-dd'), 'Bob Person', 35, 60000, 'm', 'caucasian', 2);
 
-INSERT INTO jeffreylayton.employee ( employee_id, position, start_date, name, age, salary, sex, ethnicity)
-VALUES (3, 'Person', TO_DATE('2024-03-12','yyyy-mm-dd'), 'Carla Person', 42, 65000, 'f', 'hispanic');
+INSERT INTO jeffreylayton.employee ( employee_id, position, start_date, name, age, salary, sex, ethnicity, certification_level)
+VALUES (3, 'Person', TO_DATE('2024-03-12','yyyy-mm-dd'), 'Carla Person', 42, 65000, 'f', 'hispanic', null);
 
 -- Lessons
-INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, certification_level, private, time)
-VALUES (10, 1, 2, 0, TO_TIMESTAMP('2025-05-05 09:00:00','yyyy-mm-dd hh24:mi:ss'));
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (10, 1, 0, TO_TIMESTAMP('2025-05-05 09:00:00','yyyy-mm-dd hh24:mi:ss'));
 
-INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, certification_level, private, time)
-VALUES (11, 2, 3, 1, TO_TIMESTAMP('2025-05-06 11:30:00','yyyy-mm-dd hh24:mi:ss'));
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (11, 2, 1, TO_TIMESTAMP('2025-05-06 11:30:00','yyyy-mm-dd hh24:mi:ss'));
 
-INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, certification_level, private, time)
-VALUES (12, 3, 1, 0, TO_TIMESTAMP('2025-05-07 14:00:00','yyyy-mm-dd hh24:mi:ss'));
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (12, 3, 0, TO_TIMESTAMP('2025-05-07 14:00:00','yyyy-mm-dd hh24:mi:ss'));
 
 -- LessonPurchases
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
