@@ -293,7 +293,7 @@ public class DBController {
         """;
 
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
-            System.err.println("tigkajs;f");
+            //System.err.println("tigkajs;f");
             try (ResultSet rs = p.executeQuery()) {
                 String trail = "";
                 String category = "";
