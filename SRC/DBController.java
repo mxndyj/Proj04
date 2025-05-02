@@ -184,7 +184,7 @@ public class DBController {
             }
         }
 	
-	System.out.println("Adding old rentals to rental archive!");  
+	//System.out.println("Adding old rentals to rental archive!");  
         // Next we are going to delete the returned equipment rentals and put them in the rental log.
         //PreparedStatement getRIDs= null;
         try(PreparedStatement stmt = dbconn.prepareStatement("select rentalID from tylergarfield.Rental where skiPassID= ?")) {
@@ -224,7 +224,7 @@ public class DBController {
             insert into mandyjiang.SkiPass_Archive(
             SPARCHIVE_ID,PASS_ID,MEMBER_ID,TYPE,
             REMAINING_USES,PURCHASE_TIME,EXPIRATION_DATE,ARCHIVED_TIME)
-            select mandyjiang.SKIPASS_ARCHIVE_SEQ.NEXTVAL,
+            select tylergarfield.SKIPASS_ARCHIVE_SEQ.NEXTVAL,
                 pass_id,member_id,type,remaining_uses,
                 purchase_time,expiration_date,SYSTIMESTAMP
             from mandyjiang.SkiPass
@@ -234,7 +234,7 @@ public class DBController {
         String deleteSql=
           "DELETE from mandyjiang.SkiPass where pass_id=?";
     
-	System.out.println("Was able to delete the ski pass!"); 
+	//System.out.println("Was able to delete the ski pass!"); 
         try (PreparedStatement a=dbconn.prepareStatement(archiveSql);
              PreparedStatement d=dbconn.prepareStatement(deleteSql)) {
             a.setInt(1,pid); 
