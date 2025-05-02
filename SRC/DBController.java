@@ -678,6 +678,33 @@ public class DBController {
         ResultSet res = myStmt.executeQuery(checkEQID);
         if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
 
+        // Now get the current size of the equipment record and check if the proposed new type is compatable with the current
+        // record.
+        String getCurrSz = "select equip_size from tylergarfield.Equipment where equipmentID=%d";
+        getCurrSz = String.format(getCurrSz,equipmentID);
+        res = myStmt.executeQuery(getCurrSz);
+        double currSz = res.getDouble("equip_size");
+
+        if(newType.equals("boot") && (currSz < 4.0 || currSz > 14.0)) {
+            myStmt.close();
+            throw new IllegalStateException("Given boot is for equipment update new current was not within valid range!");
+        } else if(newType.equals("pole") && (currSz < 100.0 || currSz > 140.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given pole for equipment update but current size was not within valid range!");
+        } else if(newType.equals("alpine ski") && (currSz < 115.0 || currSz > 200.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given alpine ski for equipment update but current size was not within valid range!");
+        } else if(newType.equals("snowboard") && (currSz < 90.0 || currSz > 178.0)){
+             myStmt.close();
+             throw new IllegalStateException("Given snowboard ski for equipment update but current size was not within valid range!");
+        } else if(newType.equals("helmet") || newType.equals("goggle") || newType.equals("glove")){
+            if(newSz < 1.0 || newSz > 3.0) {
+                myStmt.close();
+                throw new IllegalStateException("Given "+type +" for equipment update but current size was not within valid range!");
+            }
+        }
+
+
         // Now actually update the equipment type and record the change in the log.
         String updateType = "update tylergarfield.Equipment set equip_type='%s' where equipmentID=%d";
         updateType = String.format(updateType,newType,equipmentID);
@@ -743,20 +770,20 @@ public class DBController {
         // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         if(equipType.equals("boot") && (newSize < 4.0 || newSize > 14.0)) {
             myStmt.close();
-            throw new IllegalStateException("Given boot for equipment update but size was not within valid range!");
+            throw new IllegalStateException("Given equipment records is for a boot but size was not within valid range!");
         } else if(equipType.equals("pole") && (newSize < 100.0 || newSize > 140.0)){
             myStmt.close();
-            throw new IllegalStateException("Given pole for equipment update but size was not within valid range!");
+            throw new IllegalStateException("Given equipment is for a pole update but size was not within valid range!");
         } else if(equipType.equals("alpine ski") && (newSize < 115.0 || newSize > 200.0)){
             myStmt.close();
-            throw new IllegalStateException("Given alpine ski for equipment update but size was not within valid range!");
+            throw new IllegalStateException("Given equipment is for ski's update but size was not within valid range!");
         } else if(equipType.equals("snowboard") && (newSize < 90.0 || newSize > 178.0)){
              myStmt.close();
-             throw new IllegalStateException("Given snowboard ski for equipment update but size was not within valid range!");
+             throw new IllegalStateException("Given equipment record is for a snowboard update but size was not within valid range!");
         } else if(equipType.equals("helmet") || equipType.equals("goggle") || equipType.equals("glove")) {
             if(newSize < 1.0 || newSize > 3.0) {
                 myStmt.close();
-                throw new IllegalStateException("Given "+equipType +" for equipment update but size was not within valid range!");
+                throw new IllegalStateException("Given record was for a "+equipType +" but size was not within valid range!");
             }
         }
 

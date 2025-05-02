@@ -4,18 +4,17 @@ import java.util.Scanner;
 public class SkiResort {
     private final Scanner in =new Scanner(System.in);
     private DBController db;
-    private String sysAdPass;
+    private final String sysAdPass="1234";
 
     public static void main(String[] args) {
-        if (args.length !=3 ) {
-            System.err.println("Usage: java SkiResort <oracle user> <oracle pass> <admin password>");
+        if (args.length !=2 ) {
+            System.err.println("Usage: java SkiResort <oracle user> <oracle pass>");
             return;
         }
-        new SkiResort().run(args[0], args[1],args[2]);
+        new SkiResort().run(args[0], args[1]);
     }
 
-    private void run(String user, String pass, String givenAdPass) {
-        String sysAdPass = givenAdPass;
+    private void run(String user, String pass) {
         try {db =new DBController(user, pass);
             mainMenu();
         } catch (Exception e) {
@@ -34,7 +33,7 @@ public class SkiResort {
                 3. Lift Entry Scan
                 4. Purchase Lessons
                 5. Gear Rental
-		        6. New Gear
+		6. New Gear
                 7. Properties
                 8. Queries
                 0. Quit
@@ -271,7 +270,7 @@ public class SkiResort {
             2. Update Equipment Type (admin only)
             3. Update Equipment Name (admin only)
 	    4. Update Equipment Size (admin only)
-            3. Delete (archive)
+            5. Delete (archive)
             0. Back
             Enter Option >\
             """);
@@ -321,7 +320,7 @@ public class SkiResort {
 
         // Next actually try to delete the rental record.
         try {
-            int rentalArchiveID = db.returnEquipment(rentalID);
+            int rentalArchiveID = db.deleteRentalRecord(rentalID);
             if(rentalArchiveID>=0) {System.out.println("\t\t Rental record was successfully deleted! Log update id is "+rentalArchiveID+".");}
             else {System.out.println("\t\tError: Rental record failed to be deleted! Check given rentalID!");}
         } catch(Exception e) {
@@ -389,6 +388,7 @@ public class SkiResort {
         // First get the equipment id from the user of the record they wish to modify. Also verify
         // their admin status.
         System.out.print("\t\t Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
+        System.out.println(givenPw);
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct type update denied!");
             return;
@@ -401,7 +401,7 @@ public class SkiResort {
         // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.updateEquipmentType(equipmentID,equipType);
-            if(equipmentArchiveID>=0) {System.out.println("\t\t Equuipment name was succesfully updated! Log update id is "+equipmentArchiveID+".");}
+            if(equipmentArchiveID>=0) {System.out.println("\t\t Equipment type was succesfully updated! Log update id is "+equipmentArchiveID+".");}
             else {System.out.println("\t\tError: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
             System.out.println("\t\tError: " + e.getMessage() + "\n");
@@ -419,7 +419,7 @@ public class SkiResort {
         
         System.out.print("\t\t Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
 
-        System.out.print("\t\t Enter the new name of the equipmen record to: ");String equipName = in.nextLine();
+        System.out.print("\t\t Enter the new name of the equipmen record to change: ");String equipName = in.nextLine();
 
         // Now actually call the method that updates the equipment type.
         try {
