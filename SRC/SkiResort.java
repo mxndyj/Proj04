@@ -495,7 +495,7 @@ public class SkiResort {
             1. Get Lessons by Member ID
             2. Get Ski Pass Rides and Rentals
             3. Get Intermediate Trails
-            4. Unknown
+            4. Get Yearly Profit
             0. Back
             Enter Option >\
             """);
@@ -504,9 +504,22 @@ public class SkiResort {
             case 1 -> getLessonsForMember();
             case 2 -> queryTwo();
             case 3 -> getIntermediateTrails();
-            case 4 -> updateRentalTime();
+            case 4 -> getYearlyProfit();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
+        }
+    }
+
+    private void getYearlyProfit(){
+        try {
+            System.out.print("How many days of the year (max 365) does the ski season last: ");
+            int season = readInt();
+            System.out.print("Enter how many years to check profits for: ");
+            int years = readInt();
+            int profit = db.getYearlyProfit(season,years); 
+            System.out.printf("The estimated profit after %d year(s) is $%d%n", years, profit);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
