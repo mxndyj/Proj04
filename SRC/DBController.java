@@ -261,7 +261,7 @@ public class DBController {
                 String trail = "";
                 String category = "";
                 String difficulty = "";
-                ArrayList lifts = new ArrayList<String>();
+                ArrayList<String> lifts = new ArrayList<String>();
 
                 while (rs.next()) {
                     String newTrail = rs.getString("trail_name");
@@ -838,11 +838,31 @@ public class DBController {
 
         if(!res.next()){myStmt.close();throw new SQLException("A property with that ID was not found");}
 
-        String deleteQuery = "delete from tylergarfield.Equipment where equipmentID=%d";
+        String deleteQuery = "delete from ascherer.Property where propertyID=%d";
         deleteQuery = String.format(deleteQuery,propertyID);
         int numRowsAffected = myStmt.executeUpdate(deleteQuery);
         myStmt.close();
         return numRowsAffected;
+    }
+
+    public int getYearlyProfit(int season, int years) throws SQLException{
+        int profit = 0;
+
+        String sql = """
+                SELECT ((p.total_income - e.total_salary) * %d) AS yearly_profit
+                FROM (SELECT SUM(daily_income) * %d AS total_income FROM ascherer.Property) p,
+                (SELECT SUM(salary) AS total_salary FROM jeffreylayton.Employee) e
+                """;
+        sql = String.format(sql, years, season);
+
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            try (ResultSet rs = p.executeQuery()) {
+                while(rs.next()){
+                    profit = rs.getInt("yearly_profit");
+                }
+            }
+        }
+        return profit;
     }
 }
 
