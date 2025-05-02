@@ -183,33 +183,41 @@ public class DBController {
                     );
             }
         }
-    
+	
+	System.out.println("Adding old rentals to rental archive!");  
         // Next we are going to delete the returned equipment rentals and put them in the rental log.
-        Statement myStmt = dbconn.createStatement();
-        String getAllRentPass = "select rentalID from tylergarfield.Rental where skiPassID=%d";
-        getAllRentPass = String.format(getAllRentPass,pid);
-        ResultSet res = myStmt.executeQuery(getAllRentPass);
-        if(res!=null) {
-            while(res.next()) {
-                int rentalID = res.getInt("rentalID");
+        //PreparedStatement getRIDs= null;
+        try(PreparedStatement stmt = dbconn.prepareStatement("select rentalID from tylergarfield.Rental where skiPassID= ?")) {
+            stmt.setInt(1,pid);
+            try(ResultSet res=stmt.executeQuery()) {
+	    
+              while(res.next()) {
+                int rentalID = res.getInt(1);
 
                 // Now for this rental id add it to the log and delete it.
                 int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
-                String addRentalToArchive = "insert into tylergarfield.Rental_Archive " +
-                                    "select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,2 " +
-                                    "from tylergarfield.Rental " +
-                                    "where rentalID=%d";
-                addRentalToArchive = String.format(addRentalToArchive,rentalArchiveID,rentalID);
-                myStmt.executeUpdate(addRentalToArchive);
 
+                String addRentalToArchive = "insert into tylergarfield.Rental_Archive " +
+                                    "select ?,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,2 " +
+                                    "from tylergarfield.Rental " +
+                                    "where rentalID= ?";
+                try(PreparedStatement stmt = dbconn.prepareStatement(addRentalToArchive)) {
+                    stmt.setInt(1,rentalArchiveID);
+                    stmt.setInt(2,pid);
+                    stmt.executeUpdate();
+                }
                 // Now that that is done we can delete the rental record from the main Rental relation.
                 String deleteRental = "delete from tylergarfield.Rental where rentalID=%d";
-                deleteRental = String.format(deleteRental,rentalID);
-                myStmt.executeUpdate(deleteRental);
-
+                try(PreparedStatement stmt = dbconn.prepareStatement(deleteRental)) {
+                    stmt.setInt(1,pid);
+                    stmt.executeUpdate();
+                }
+              }
             }
+           
         }
-
+        
+        //System.out.println("Was able to add old rentals to rental archive!"); 
 
         // Now, Archive / delete 
         String archiveSql="""
@@ -226,6 +234,7 @@ public class DBController {
         String deleteSql=
           "DELETE from mandyjiang.SkiPass where pass_id=?";
     
+	System.out.println("Was able to delete the ski pass!"); 
         try (PreparedStatement a=dbconn.prepareStatement(archiveSql);
              PreparedStatement d=dbconn.prepareStatement(deleteSql)) {
             a.setInt(1,pid); 
@@ -233,6 +242,7 @@ public class DBController {
             d.setInt(1,pid);
             return d.executeUpdate() == 1;
         }
+        
     }
 
     //  Lift Entry 
@@ -340,7 +350,7 @@ public class DBController {
 
     // Lesson + Lesson Purchase
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
-        int id = getNextId("jLessonPurchasej", "jeffreylayton");
+        int id = getNextId("LessonPurchase", "jeffreylayton");
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
         try (PreparedStatement stmt= dbconn.prepareStatement(sql)) {
             stmt.setInt(1, id);
