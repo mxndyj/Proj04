@@ -9,7 +9,7 @@ CREATE TABLE ascherer.Property(
 
 create sequence ascherer.PROPERTY_SEQ START WITH 1 INCREMENT BY 1 NOCACHE NOMAXVALUE;
 
-GRANT SELECT, INSERT, DELETE ON ascherer.Property TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ascherer.Property TO PUBLIC;
 GRANT SELECT ON ascherer.PROPERTY_SEQ TO PUBLIC;
 
 INSERT INTO ascherer.Property(propertyID, property_type, daily_income) VALUES (ascherer.PROPERTY_SEQ.NEXTVAL, 'lodge', 100);
