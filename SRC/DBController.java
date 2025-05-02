@@ -184,6 +184,33 @@ public class DBController {
             }
         }
     
+        // Next we are going to delete the returned equipment rentals and put them in the rental log.
+        Statement myStmt = dbconn.createStatement();
+        String getAllRentPass = "select rentalID from tylergarfield.Rental where skiPassID=%d";
+        getAllRentPass = String.format(getAllRentPass,pid);
+        ResultSet res = myStmt.executeQuery(getAllRentPass);
+        if(res!=null) {
+            while(res.next()) {
+                int rentalID = res.getInt("rentalID");
+
+                // Now for this rental id add it to the log and delete it.
+                int rentalArchiveID = getNextId("Rental_Archive","tylergarfield");
+                String addRentalToArchive = "insert into tylergarfield.Rental_Archive " +
+                                    "select %d,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,2 " +
+                                    "from tylergarfield.Rental " +
+                                    "where rentalID=%d";
+                addRentalToArchive = String.format(addRentalToArchive,rentalArchiveID,rentalID);
+                myStmt.executeUpdate(addRentalToArchive);
+
+                // Now that that is done we can delete the rental record from the main Rental relation.
+                String deleteRental = "delete from tylergarfield.Rental where rentalID=%d";
+                deleteRental = String.format(deleteRental,rentalID);
+                myStmt.executeUpdate(deleteRental);
+
+            }
+        }
+
+
         // Now, Archive / delete 
         String archiveSql="""
             insert into mandyjiang.SkiPass_Archive(
@@ -533,7 +560,7 @@ public class DBController {
 
         // We will check if the equipment " the record was created and the equipment has been used " by checking if the only
         // logged even is the record being created.
-        String checkBeenUsed = "select changeState from tylergarfield.Equipment_Archive where rentalID=%d";
+        String checkBeenUsed = "select changeState from tylergarfield.Rental_Archive where rentalID=%d";
         checkBeenUsed = String.format(checkBeenUsed,rentalID);
         res = myStmt.executeQuery(checkBeenUsed);
         int onlyAdded = 1;
@@ -683,7 +710,9 @@ public class DBController {
         String getCurrSz = "select equip_size from tylergarfield.Equipment where equipmentID=%d";
         getCurrSz = String.format(getCurrSz,equipmentID);
         res = myStmt.executeQuery(getCurrSz);
-        double currSz = res.getDouble("equip_size");
+        double currSz = 0.0;
+	if(res.next()){res.getDouble("equip_size");}
+        else{myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
 
         if(newType.equals("boot") && (currSz < 4.0 || currSz > 14.0)) {
             myStmt.close();
@@ -768,20 +797,23 @@ public class DBController {
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
         // TODO you were here ACTUALLY FILL IN THESE CHECKS.
-        if(equipType.equals("boot") && (newSize < 4.0 || newSize > 14.0)) {
+        String equipSzString = Double.toString(newSize);
+        int decimalInd = equipSzString.indexOf(".");
+        char charAfterDecimal = equipSzString.charAt(decimalInd+1);
+        if(equipType.equals("boot") && ((newSize < 4.0 || newSize > 14.0) || (charAfterDecimal!='0'&&charAfterDecimal!='5'))) {
             myStmt.close();
             throw new IllegalStateException("Given equipment records is for a boot but size was not within valid range!");
-        } else if(equipType.equals("pole") && (newSize < 100.0 || newSize > 140.0)){
+        } else if(equipType.equals("pole") && ((newSize < 100.0 || newSize > 140.0) || newSize!=(int)newSize)){
             myStmt.close();
             throw new IllegalStateException("Given equipment is for a pole update but size was not within valid range!");
-        } else if(equipType.equals("alpine ski") && (newSize < 115.0 || newSize > 200.0)){
+        } else if(equipType.equals("alpine ski") && ((newSize < 115.0 || newSize > 200.0)||newSize!=(int)newSize)){
             myStmt.close();
             throw new IllegalStateException("Given equipment is for ski's update but size was not within valid range!");
-        } else if(equipType.equals("snowboard") && (newSize < 90.0 || newSize > 178.0)){
+        } else if(equipType.equals("snowboard") && ((newSize < 90.0 || newSize > 178.0)||newSize!=(int)newSize)){
              myStmt.close();
              throw new IllegalStateException("Given equipment record is for a snowboard update but size was not within valid range!");
         } else if(equipType.equals("helmet") || equipType.equals("goggle") || equipType.equals("glove")) {
-            if(newSize < 1.0 || newSize > 3.0) {
+            if((newSize < 1.0 || newSize > 3.0)||newSize!=(int)newSize) {
                 myStmt.close();
                 throw new IllegalStateException("Given record was for a "+equipType +" but size was not within valid range!");
             }
@@ -922,18 +954,26 @@ public class DBController {
         queryLiftRides = String.format(queryLiftRides,skiPassID);
         res = myStmt.executeQuery(queryLiftRides);
 
-        System.out.println("************************************************************");
+        System.out.println("\t\t\t*********************************************************");
 
-        String colHeadersLift = "%-20s %-20s";
+        String colHeadersLift = "\t\t\t%-25s  %-30s";
         colHeadersLift = String.format(colHeadersLift,"Lift name","Entered At Time");
         System.out.println(colHeadersLift);
 
-        String colDashes = "%-20s %-20s";
-        colDashes = String.format(colDashes,"-","-");
-        System.out.println(colDashes);
+        //String colDashes = "% %-20s";
+        //colDashes = String.format(colDashes,"-","-");
+
+        int numDashes = 25;
+        int numDashes2 = 30;
+        System.out.print("\t\t\t");
+        for(int i=0; i<numDashes; i++) {System.out.print("-");}
+        System.out.print("  ");
+        for(int i=0; i<numDashes2; i++) {System.out.print("-");}
+        System.out.println();
+
         if(res!=null) {
             while(res.next()) {
-                String nextTup = "%-20s %-20s";
+                String nextTup = "\t\t\t%-25s  %-30s";
                 nextTup = String.format(nextTup,res.getString("lift_name"),res.getString("entrance_time"));
                 System.out.println(nextTup);
 	    }
@@ -941,10 +981,16 @@ public class DBController {
 
         System.out.println();
 
-        String colHeadersRent = "%-20s %-20s";
+        String colHeadersRent = "\t\t\t%-25s  %-30s";
         colHeadersRent = String.format(colHeadersRent,"Gear Name","Rented At Time");
         System.out.println(colHeadersRent);
-        System.out.println(colDashes);
+        
+
+        System.out.print("\t\t\t");
+        for(int i=0; i<numDashes; i++) {System.out.print("-");}
+        System.out.print("  ");
+        for(int i=0; i<numDashes2; i++) {System.out.print("-");}
+        System.out.println();
 
         String queryRentalRecords = "select name,rentalTime from tylergarfield.Rental join " +
 				    "tylergarfield.Equipment on tylergarfield.Rental.equipmentID = " +
@@ -954,13 +1000,13 @@ public class DBController {
 
         if(res!=null) {
             while(res.next()) {
-                String nextTup = "%-20s %-20s";
+                String nextTup = "\t\t\t%-25s  %-30s";
                 nextTup = String.format(nextTup,res.getString("name"),res.getString("rentalTime"));
                 System.out.println(nextTup);
             }
         }
 
-        System.out.println("************************************************************");
+        System.out.println("\t\t\t*********************************************************");
     }
 
 }

@@ -26,18 +26,18 @@ public class SkiResort {
 
     private void mainMenu() {
         while (true) {
-            System.out.print("""
-                -- Ski Resort System --
-                1. Members
-                2. Ski Passes
-                3. Lift Entry Scan
-                4. Purchase Lessons
-                5. Gear Rental
-		6. New Gear
-                7. Properties
-                8. Queries
-                0. Quit
-                Enter Option : """);
+            System.out.print(
+                "\t-- Ski Resort System --\n"+
+                "\t1. Members\n"+
+                "\t2. Ski Passes\n"+
+                "\t3. Lift Entry Scan\n"+
+                "\t4. Purchase Lessons\n"+
+                "\t5. Gear Rental\n"+
+	        "\t6. New Gear\n"+
+                "\t7. Properties\n"+
+                "\t8. Queries\n"+
+                "\t0. Quit\n"+
+                "\tEnter Option : ");
             int choice =readInt();
             switch (choice) {
                 case 1 -> memberMenu();
@@ -45,7 +45,7 @@ public class SkiResort {
                 case 3 -> liftEntry();
                 case 4 -> purchaseLessonMenu();
                 case 5 -> rentalMenu();
-		        case 6 -> equipmentMenu();
+		case 6 -> equipmentMenu();
                 case 7 -> propertyMenu();
                 case 8 -> queriesMenu();
                 case 0 -> { System.out.println("Goodbye!"); return; }
@@ -55,13 +55,13 @@ public class SkiResort {
     }
 
     private void memberMenu() {
-        System.out.print("""
-            Member:
-            1. Add
-            2. Update
-            3. Delete
-            0. Back
-            Choose> """);
+        System.out.print(
+            "\t\tMember:\n"+
+            "\t\t1. Add:\n"+
+            "\t\t2. Update\n"+
+            "\t\t3. Delete\n"+
+            "\t\t0. Back\n"+
+            "\t\tChoose> ");
         int choice =readInt();
         switch (choice) {
             case 1 -> addMember();
@@ -113,13 +113,13 @@ public class SkiResort {
     }
 
     private void passMenu() {
-        System.out.print("""
-            Ski Pass:
-            1. Add
-            2. Adjust uses
-            3. Delete (archive)
-            0. Back
-            Enter Option > """);
+        System.out.print(
+            "\t\tSki Pass\n"+
+            "\t\t1. Add\n"+
+            "\t\t2. Adjust uses\n"+
+            "\t\t3. Delete (archive)\n"+
+            "\t\t0. Back\n"+
+            "\t\tEnter Option > ");
         int choice =readInt();
         switch (choice) {
             case 1 -> addPass();
@@ -178,14 +178,12 @@ public class SkiResort {
 
     private void purchaseLessonMenu() {
         System.out.print(
-            """
-            Lessons:
-            1. Add Lesson Purchase
-            2. Adjust Lesson Purchase
-            3. Delete (archive)
-            0. Back
-            Enter Option >\
-            """);
+            "\t\tLessons:\n"+
+            "\t\t1. Add Lesson Purchase\n"+
+            "\t\t2. Adjust Lesson Purchase\n"+
+            "\t\t3. Delete (archive)\n"+
+            "\t\t0. Back\n"+
+            "\t\tEnter Option > ");
         int choice = readInt();
         switch (choice) {
             case 1 -> addLessonPurchase();
@@ -240,16 +238,14 @@ public class SkiResort {
     }
 
     private void rentalMenu() {
-        System.out.print(
-            """
-            Equipment Rentals:
-            1. Make New Equipment Rental With Ski Pass
-            2. Return Rented Equipment
-            3. Delete (archive)
-            4. Update Rental Time (Admin only)
-            0. Back
-            Enter Option >\
-            """);
+        String rentalEquipMen =  "\t\tEquipment Rentals:\n"+
+            "\t\t1. Make New Equipment Rental With Ski Pass\n"+
+            "\t\t2. Return Rented Equipment\n"+
+            "\t\t3. Delete (archive)\n"+
+            "\t\t4. Update Rental Time (Admin only)\n"+
+            "\t\t0. Back\n"+
+            "\t\tEnter Option >";
+        System.out.print(rentalEquipMen);
         int choice = readInt();
         switch (choice) {
             case 1 -> addEquipmentRental();
@@ -263,17 +259,15 @@ public class SkiResort {
     }
 
     private void equipmentMenu() {
-        System.out.print(
-            """
-            Equipment Rentals:
-            1. Input a new piece of equipment
-            2. Update Equipment Type (admin only)
-            3. Update Equipment Name (admin only)
-	    4. Update Equipment Size (admin only)
-            5. Delete (archive)
-            0. Back
-            Enter Option >\
-            """);
+        String equipMen =  "\t\tEquipment Rentals:\n"+
+            "\t\t1. Input a new piece of equipment\n"+
+            "\t\t2. Update Equipment Type (admin only)\n"+
+            "\t\t3. Update Equipment Name (admin only)\n"+
+            "\t\t4. Update Equipment Size (admin only)\n"+
+            "\t\t5. Delete (archive)\n"+
+            "\t\t0. Back\n"+
+            "\t\tEnter Option >";
+        System.out.print(equipMen);
         int choice = readInt();
         switch (choice) {
             case 1 -> addEquipmentRecord();
@@ -287,7 +281,7 @@ public class SkiResort {
 
     }
 
-        private void addEquipmentRental() {
+    private void addEquipmentRental() {
         System.out.print("First, system needs a valid ski pass id: ");int skiPassId = readInt();
         System.out.print("Next, system needs a valid equipment id: ");int equipmentId = readInt();
 
@@ -295,69 +289,69 @@ public class SkiResort {
         try {
             int rentalID = db.addRentalRecord(skiPassId,equipmentId);
             if(rentalID>=0) {
-                System.out.println("\t\tSuccessfully created a new rental record with rental id "+rentalID+"\n");
-            } else { System.out.println("\t\tUpdate of equipment rental failed, check that the given id's were valid\n");}
+                System.out.println("Successfully created a new rental record with rental id "+rentalID+"\n");
+            } else { System.out.println("Update of equipment rental failed, check that the given id's were valid\n");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         } 
     }
 
     private void returnEquipment() {
-        System.out.print("\t\tEnter a valid rentalID: ");int rentalID = readInt();
+        System.out.print("Enter a valid rentalID: ");int rentalID = readInt();
 
         // Next actually try to update the equipment status to returned.
         try {
             int rentalArchiveID = db.returnEquipment(rentalID);
-            if(rentalArchiveID>=0) {System.out.println("\t\t rental equipmemt was successfully returned! Log update id is "+rentalArchiveID+".");}
-	    else {System.out.println("\t\tError: Rental record failed to be updated! Check given rentalID!");}
+            if(rentalArchiveID>=0) {System.out.println("Rental equipmemt was successfully returned! Log update id is "+rentalArchiveID+".");}
+	    else {System.out.println("Error: Rental record failed to be updated! Check given rentalID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
 
     private void deleteRentalRecord() {
-        System.out.print("\t\t Enter a valid rentalID: ");int rentalID = readInt();
+        System.out.print("Enter a valid rentalID: ");int rentalID = readInt();
 
         // Next actually try to delete the rental record.
         try {
             int rentalArchiveID = db.deleteRentalRecord(rentalID);
             if(rentalArchiveID>=0) {System.out.println("\t\t Rental record was successfully deleted! Log update id is "+rentalArchiveID+".");}
-            else {System.out.println("\t\tError: Rental record failed to be deleted! Check given rentalID!");}
+            else {System.out.println("Error: Rental record failed to be deleted! Check given rentalID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
 
     }
 
     private void updateRentalTime() { //
-        System.out.print("\t\t Enter the admin password to modify rental time: ");String givenPw = in.nextLine();
+        System.out.print("Enter the admin password to modify rental time: ");String givenPw = in.nextLine();
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct time update denied!");
             return;
         }
-        System.out.print("\t\t Enter a valid rentalID: ");int rentalID = readInt();
+        System.out.print("Enter a valid rentalID: ");int rentalID = readInt();
 
         // Next actually try to delete the rental record.
         try {
             int rentalArchiveID = db.updateRentalTime(rentalID);
             if(rentalArchiveID>=0) {System.out.println("\t\t Rental time was succesfully updated! Log update id is "+rentalArchiveID+".");}
-            else {System.out.println("\t\tError: Rental record failed to be updates! Check given rentalID!");}
+            else {System.out.println("Error: Rental record failed to be updates! Check given rentalID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
 
     }
 
     private void addEquipmentRecord() {
         // First get the equipment type.
-        System.out.print("\t\tEquipment type: ");String type = in.nextLine();
+        System.out.print("Equipment type: ");String type = in.nextLine();
 
         // Next get the size of the equipment.
         double equipSize = 0.0;
         boolean gotEquipSize = false;
 
         while(!gotEquipSize) {
-              System.out.print("\t\tEquipment size: ");
+              System.out.print("Equipment size: ");
               if(in.hasNextDouble()) {
                   equipSize = Double.parseDouble(in.nextLine());
 		  String equipSzString = Double.toString(equipSize);
@@ -372,133 +366,132 @@ public class SkiResort {
         }
 
         // Next get the name of the equipment.
-        System.out.print("\t\tEquipment name: ");String name = in.nextLine();
+        System.out.print("Equipment name: ");String name = in.nextLine();
 
         // Next actually run the add equipment record.
         try {
             int equipmentID = db.addEquipmentRecord(type,equipSize,name);
-            if(equipmentID>=0) {System.out.println("\t\tSuccessfully added a new equipment record with equipmentID "+equipmentID+"!");}
+            if(equipmentID>=0) {System.out.println("Successfully added a new equipment record with equipmentID "+equipmentID+"!");}
             else {System.out.println("The new equipment record was unable to be added check the equipment type is valid");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
 
     private void updateEquipmentType() {
         // First get the equipment id from the user of the record they wish to modify. Also verify
         // their admin status.
-        System.out.print("\t\t Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
-        System.out.println(givenPw);
+        System.out.print("Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
+        //System.out.println(givenPw);
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct type update denied!");
             return;
         }
         
-        System.out.print("\t\t Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
+        System.out.print("Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
 
-        System.out.print("\t\t Enter the type of equipment that change record to: ");String equipType = in.nextLine();
+        System.out.print("Enter the type of equipment that change record to: ");String equipType = in.nextLine();
 
         // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.updateEquipmentType(equipmentID,equipType);
             if(equipmentArchiveID>=0) {System.out.println("\t\t Equipment type was succesfully updated! Log update id is "+equipmentArchiveID+".");}
-            else {System.out.println("\t\tError: Equipment record failed to be updated! Check given equipmentID!");}
+            else {System.out.println("Error: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
 
     private void updateEquipmentName() {
         // First get the equipment id from the user of the record they wish to modify. Also verify
         // their admin status.
-        System.out.print("\t\t Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
+        System.out.print("Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct name update denied!");
             return;
         }
         
-        System.out.print("\t\t Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
+        System.out.print("Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
 
-        System.out.print("\t\t Enter the new name of the equipmen record to change: ");String equipName = in.nextLine();
+        System.out.print("Enter the new name of the equipmen record to change: ");String equipName = in.nextLine();
 
         // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.updateEquipmentName(equipmentID,equipName);
-            if(equipmentArchiveID>=0) {System.out.println("\t\t Equipment name was succesfully updated! Log update id is "+equipmentArchiveID+".");}            
-            else {System.out.println("\t\tError: Equipment record failed to be updated! Check given equipmentID!");}
+            if(equipmentArchiveID>=0) {System.out.println("Equipment name was succesfully updated! Log update id is "+equipmentArchiveID+".");}            
+            else {System.out.println("Error: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
 
     }
 
     private void updateEquipmentSize() {
-        System.out.print("\t\t Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
+        System.out.print("Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct name update denied!");
             return;
         }
         
-        System.out.print("\t\t Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
+        System.out.print("Enter the equipment id of the record you wish to change: ");int equipmentID = readInt();
 
         double equipSize = 0.0;
         boolean gotEquipSize = false;
 
-        
-        while(!gotEquipSize) {
-              System.out.print("\t\tEquipment size: ");
+         while(!gotEquipSize) {
+              System.out.print("Equipment size: ");
               if(in.hasNextDouble()) {
-                  equipSize = Double.parseDouble(in.nextLine());
+                  equipSize = in.nextDouble();
+                  gotEquipSize=true;
               } else { in.nextLine();}
         }
+        in.nextLine();
 
           // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.updateEquipmentSize(equipmentID,equipSize);
-            if(equipmentArchiveID>=0) {System.out.println("\t\t Equipment size was succesfully updated! Log update id is "+equipmentArchiveID+".");}
-            else {System.out.println("\t\tError: Equipment record failed to be updated! Check given equipmentID!");}
+            if(equipmentArchiveID>=0) {System.out.println("Equipment size was succesfully updated! Log update id is "+equipmentArchiveID+".");}
+            else {System.out.println("Error: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
 
 
     }
 
     private void deleteEquipmentRecord() {
-        System.out.print("\t\t Enter the equipment id of the record you wish to delete: ");int equipmentID = readInt();
+        System.out.print("Enter the equipment id of the record you wish to delete: ");int equipmentID = readInt();
 
         // Now actually call the method that updates the equipment type.
         try {
             int equipmentArchiveID = db.deleteEquipmentRecord(equipmentID);
-            if(equipmentArchiveID>=0) {System.out.println("\t\t Equuipment entry! Log update id is "+equipmentArchiveID+".");}
-            else {System.out.println("\t\tError: Equipment record failed to be updated! Check given equipmentID!");}
+            if(equipmentArchiveID>=0) {System.out.println("Equuipment entry! Log update id is "+equipmentArchiveID+".");}
+            else {System.out.println("Error: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
 
     }
 
     private void queryTwo() {
-        System.out.print("\t\t Enter a valid ski pass id: ");int skiPassID =readInt();
+        System.out.print("Enter a valid ski pass id: ");int skiPassID =readInt();
         try{
             db.runQueryTwo(skiPassID);
         } catch(Exception e) {
-            System.out.println("\t\tError: " + e.getMessage() + "\n");
+            System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
 
 
     private void queriesMenu() {
         System.out.print(
-            """
-            Queries:
-            1. Get Lessons by Member ID
-            2. Get Ski Pass Rides and Rentals
-            3. Get Intermediate Trails
-            4. Get Yearly Profit
-            0. Back
-            Enter Option >\
-            """);
+            "\t\tQueries:\n"+
+            "\t\t1. Get Lessons by Member ID\n"+
+            "\t\t2. Get Ski Pass Rides and Rentals\n"+
+            "\t\t3. Get Intermediate Trails\n"+
+            "\t\t4. Get Yearly Profit\n"+
+            "\t\t0. Back\n"+
+            "\t\tEnter Option > ");
         int choice = readInt();
         switch (choice) {
             case 1 -> getLessonsForMember();
@@ -533,14 +526,13 @@ public class SkiResort {
 
     private void propertyMenu(){
         System.out.print(
-            """
-            Properties:
-            1. Add a new property
-            2. Update Property Type
-            3. Update Property Daily Income
-            4. Delete Property
-            0. Back
-            Enter Option > """);
+            "\t\tProperties:\n"+
+            "\t\t1. Add a new property\n"+
+            "\t\t2. Update Property Type\n"+
+            "\t\t3. Update Property Daily Income\n"+
+            "\t\t4. Delete Property\n"+
+            "\t\t0. Back\n"+
+            "Enter Option > ");
             
         int choice = readInt();
         switch (choice) {
