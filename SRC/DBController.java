@@ -698,9 +698,9 @@ public class DBController {
              myStmt.close();
              throw new IllegalStateException("Given snowboard ski for equipment update but current size was not within valid range!");
         } else if(newType.equals("helmet") || newType.equals("goggle") || newType.equals("glove")){
-            if(newSz < 1.0 || newSz > 3.0) {
+            if(currSz < 1.0 || currSz > 3.0) {
                 myStmt.close();
-                throw new IllegalStateException("Given "+type +" for equipment update but current size was not within valid range!");
+                throw new IllegalStateException("Given "+newType +" for equipment update but current size was not within valid range!");
             }
         }
 
