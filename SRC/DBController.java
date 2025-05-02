@@ -201,16 +201,16 @@ public class DBController {
                                     "select ?,rentalID,skiPassID,equipmentID,rentalTime,returnStatus,SYSTIMESTAMP,2 " +
                                     "from tylergarfield.Rental " +
                                     "where rentalID= ?";
-                try(PreparedStatement stmt = dbconn.prepareStatement(addRentalToArchive)) {
-                    stmt.setInt(1,rentalArchiveID);
-                    stmt.setInt(2,pid);
-                    stmt.executeUpdate();
+                try(PreparedStatement stmt1 = dbconn.prepareStatement(addRentalToArchive)) {
+                    stmt1.setInt(1,rentalArchiveID);
+                    stmt1.setInt(2,pid);
+                    stmt1.executeUpdate();
                 }
                 // Now that that is done we can delete the rental record from the main Rental relation.
                 String deleteRental = "delete from tylergarfield.Rental where rentalID=%d";
-                try(PreparedStatement stmt = dbconn.prepareStatement(deleteRental)) {
-                    stmt.setInt(1,pid);
-                    stmt.executeUpdate();
+                try(PreparedStatement stmt2 = dbconn.prepareStatement(deleteRental)) {
+                    stmt2.setInt(1,pid);
+                    stmt2.executeUpdate();
                 }
               }
             }
