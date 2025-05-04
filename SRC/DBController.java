@@ -721,7 +721,7 @@ public class DBController {
         getCurrSz = String.format(getCurrSz,equipmentID);
         res = myStmt.executeQuery(getCurrSz);
         double currSz = 0.0;
-	if(res.next()){res.getDouble("equip_size");}
+	if(res.next()){currSz=res.getDouble("equip_size");}
         else{myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
 
         if(newType.equals("boot") && (currSz < 4.0 || currSz > 14.0)) {
@@ -762,6 +762,56 @@ public class DBController {
 
         myStmt.close();
         return equipmentArchiveID;
+    }
+
+    public int updateEquipTypeSz(int equipmentID,String newType, int newSz) throws SQLException,IllegalStateException{
+        Statement myStmt = dbconn.createStatement();
+
+        // First verify that the equipment that is attempting to be added actually exists.
+        String checkEQID = "select 1 from tylergarfield.Equipment where equipmentID=%d";
+        checkEQID = String.format(checkEQID,equipmentID);
+        ResultSet res = myStmt.executeQuery(checkEQID);
+        if(!res.next()){myStmt.close();throw new SQLException("A record with the given equipmentID could not be found!");}
+
+        // Now validate that the new equipment type and size are compatable with eachother.
+        if(newType.equals("boot") && (newSz < 4.0 || newSz > 14.0)) {
+            myStmt.close();
+            throw new IllegalStateException("Given boot is for equipment update new current was not within valid range!");
+        } else if(newType.equals("pole") && (newSz < 100.0 || newSz > 140.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given pole for equipment update but current size was not within valid range!");
+        } else if(newType.equals("alpine ski") && (newSz < 115.0 || newSz > 200.0)){
+            myStmt.close();
+            throw new IllegalStateException("Given alpine ski for equipment update but current size was not within valid range!");
+        } else if(newType.equals("snowboard") && (newSz < 90.0 || newSz > 178.0)){
+             myStmt.close();
+             throw new IllegalStateException("Given snowboard ski for equipment update but current size was not within valid range!");
+        } else if(newType.equals("helmet") || newType.equals("goggle") || newType.equals("glove")){
+            if(newSz < 1.0 || newSz > 3.0) {
+                myStmt.close();
+                throw new IllegalStateException("Given "+newType +" for equipment update but current size was not within valid range!");
+            }
+        }
+
+        // Now actaully execute the update after we have validated that the update is valid.
+        String updateTypeSz = "update tylergarfield.Equipment set equip_type='%s',equip_size=%d where equipmentID=%d";
+        updateTypeSz = String.format(updateTypeSz,newType,newSz,equipmentID);
+        int numRowsAffected = myStmt.executeUpdate(updateTypeSz);
+
+         // If the entry was successfully updated add the update to the log.
+        int equipmentArchiveID = -1;
+        if(numRowsAffected > 0 ) {
+            equipmentArchiveID = getNextId("Equipment_Archive","tylergarfield");
+            String addEquipmentToArchive = "insert into tylergarfield.Equipment_Archive " +
+                                        "select %d,equipmentID,equip_type,equip_size,name,1 " +
+                                        "from tylergarfield.Equipment where equipmentID=%d";
+            addEquipmentToArchive = String.format(addEquipmentToArchive,equipmentArchiveID,equipmentID);
+            myStmt.executeQuery(addEquipmentToArchive);
+        }
+
+        myStmt.close();
+        return equipmentArchiveID;
+
     }
 
     public int updateEquipmentName(int equipmentID,String equipName) throws SQLException{

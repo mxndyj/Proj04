@@ -264,7 +264,8 @@ public class SkiResort {
             "\t\t2. Update Equipment Type (admin only)\n"+
             "\t\t3. Update Equipment Name (admin only)\n"+
             "\t\t4. Update Equipment Size (admin only)\n"+
-            "\t\t5. Delete (archive)\n"+
+            "\t\t5. Update Equipment Type & Size (admin only)\n"+
+            "\t\t6. Delete (archive)\n"+
             "\t\t0. Back\n"+
             "\t\tEnter Option >";
         System.out.print(equipMen);
@@ -274,7 +275,8 @@ public class SkiResort {
             case 2 -> updateEquipmentType();
             case 3 -> updateEquipmentName();
             case 4 -> updateEquipmentSize();
-	    case 5 -> deleteEquipmentRecord();
+            case 5 -> updateEquipTypeSz();
+	    case 6 -> deleteEquipmentRecord();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }
@@ -473,6 +475,15 @@ public class SkiResort {
 
     }
 
+    private void updateEquipTypeSz() {
+    }
+
+    private void getEquipmentTable(){
+    }
+
+    private void getRentalTable(){
+    }
+
     private void queryTwo() {
         System.out.print("Enter a valid ski pass id: ");int skiPassID =readInt();
         try{
@@ -490,6 +501,8 @@ public class SkiResort {
             "\t\t2. Get Ski Pass Rides and Rentals\n"+
             "\t\t3. Get Intermediate Trails\n"+
             "\t\t4. Get Yearly Profit\n"+
+            "\t\t5. Display all equipment records\n"+
+            "\t\t6. Display all rental records\n"+
             "\t\t0. Back\n"+
             "\t\tEnter Option > ");
         int choice = readInt();
@@ -498,6 +511,8 @@ public class SkiResort {
             case 2 -> queryTwo();
             case 3 -> getIntermediateTrails();
             case 4 -> getYearlyProfit();
+            case 5 -> getEquipmentTable();
+            case 6 -> getRentalTable();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }
