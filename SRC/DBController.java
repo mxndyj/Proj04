@@ -281,7 +281,6 @@ public class DBController {
             }
         }
 	
-	//System.out.println("Adding old rentals to rental archive!");  
         // Next we are going to delete the returned equipment rentals and put them in the rental log.
         //PreparedStatement getRIDs= null;
         try(PreparedStatement stmt = dbconn.prepareStatement("select rentalID from tylergarfield.Rental where skiPassID= ?")) {
@@ -303,20 +302,19 @@ public class DBController {
                     stmt1.setInt(2,rentalID);
                     stmt1.executeUpdate();
                 }
-                //System.out.println("Was able to add new rental to the archive!");
                 // Now that that is done we can delete the rental record from the main Rental relation.
                 String deleteRental = "delete from tylergarfield.Rental where rentalID=?";
                 try(PreparedStatement stmt2 = dbconn.prepareStatement(deleteRental)) {
                     stmt2.setInt(1,rentalID);
                     stmt2.executeUpdate();
                 }
-                //System.out.println("Got to after deletion of old rental record");
+
               }
             }
            
         }
         
-        //System.out.println("Was able to add old rentals to rental archive!"); 
+
 
         // Now, Archive / delete 
         String archiveSql="""
@@ -333,7 +331,6 @@ public class DBController {
         String deleteSql=
           "DELETE from mandyjiang.SkiPass where pass_id=?";
     
-	//System.out.println("Was able to delete the ski pass!"); 
         try (PreparedStatement a=dbconn.prepareStatement(archiveSql);
              PreparedStatement d=dbconn.prepareStatement(deleteSql)) {
             a.setInt(1,pid); 
@@ -442,22 +439,6 @@ public class DBController {
             }
         }
     }
-
-    // TODO implement these.
-    // public int addRentalRecord(int skiPassID, int equipmentID) {
-    // }
-    //
-    // public int deleteRentalRecord(int rentalID) {
-    // }
-    //
-    // public int addEquipmentRecord(String type, int size, String name) {
-    // }
-    //
-    // public int deleteEquipmentRecord(int equipmentID) {
-    // }
-
-
-    // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
 
     public void getLessons() throws SQLException {
         String sql = """
@@ -624,7 +605,32 @@ public class DBController {
         }
     }
 
-    // TODO implement these.
+    /*-------------------------------------------------------------------
+    | Method: addRentalRecord(int skiPassID, int equipmentID)
+    |
+    | Purpose: This method adds a new rental to the Rental relation containing
+    |	       all records of equipment rentals within the SkiResort. Function
+    |          first verifies that the given skipass and equipment id's actully
+    |          to valid entries in their respective relations and then the new 
+    |          record is added. Rental entry is also added to rental archive with
+    |          a change state of 0 indicating a new renal record creation.
+    |
+    | Pre-condition:  The SkiPass, and Equipment relations exist. 
+    |		      Public able to acccess rental archive seq.
+    |
+    | Post-condition: A new record has been added to the Rental relation denoting
+    |                 a rental of the given equipment record by the given skipass
+    |                 record.
+    |
+    | Parameters: int skiPassID - The id denoting which ski pass record this
+    |			rental is being made from.
+    |             int equipmentID - The id pointing to the equipment record
+    |			that is being rented by the given ski pass.
+    |
+    | Returns: int, Attempts to add a new record to the rental relation if
+    |		this is not possible then a error is thrown. Otherwise log id
+    |           is returned.
+    *-------------------------------------------------------------------*/
     public int addRentalRecord(int skiPassID, int equipmentID) throws SQLException,IllegalStateException{
 	Statement myStmt = dbconn.createStatement();
 	// First thing we need to do is determine if the given ski pass id is actually a valid
@@ -667,7 +673,28 @@ public class DBController {
         return rentalID;
     }
     
-    // TODO add function here to modify rental time here!!!!!!
+    /*-------------------------------------------------------------------
+    | Method: updateRentalTime(int rentalID)
+    |
+    | Purpose: This function, givne a rentalID pointing to the rental record
+    |          attempt to update the corresponding record's rental time. Function
+    |          throws an error if the given rental id does not point to a valid
+    |          rental record. The rental record is also added to the rental archive
+    |          with a change state of 1 indicating a record update.
+    |
+    | Pre-condition: the Rental relation exists in my db and can be acessed
+    |                by the public. Public able to acccess rental archive seq.
+    |
+    | Post-condition: If the given rentalID points to a valid rental record
+    |                 then then that record's rental time has been updated to
+    |                 the current time if the rentalID was valid.
+    |
+    | Parameters: int rentalID - The id for the rental relation to update
+    |			the corresponding records time.
+    |
+    | Returns: int, return the id of the newly generated log record denoting
+    |		the updated rental time.
+    *-------------------------------------------------------------------*/ 
     public int updateRentalTime(int rentalID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -698,7 +725,29 @@ public class DBController {
         return rentalArchiveID;
     }
 
-    // Function returns 1 for a normal error and 2 if the givne rentalID does not exist.
+    /*-------------------------------------------------------------------
+    | Method: returnEquipment(int rentalID)
+    |
+    | Purpose: Function attempts to update the rental record pointed to by
+    |          the given rental id to a returned status thereby returning
+    |          the desired piece of equipment. Function throws an error if
+    |          an invalid rental is given or if equipmene has already been
+    |          returned. The rental entry update is also added to the rental
+    |          log with the changeState set to 1 indicating a record update.
+    |
+    | Pre-condition: The Rental and Rental_Archive relations are active and
+    |                acessable to the public. Public able to acccess rental
+    |		     archive seq.
+    |
+    | Post-condition: The Rental relation has been updated with the record
+    |                 pointed to by rentalID now having a returned status.
+    |                 Or an informative error has been thrown.
+    |
+    | Parameters: int rentalID - The id of the rental record to be updated.
+    |
+    | Returns: Function attempts to update the desired rental record and returns
+    |		the log id of the logging the changed record.
+    *-------------------------------------------------------------------*/ 
     public int returnEquipment(int rentalID) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -738,6 +787,27 @@ public class DBController {
         return rentalArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: deleteRentalRecord(int rentalID)
+    |
+    | Purpose: This function, given the id of the rental record to be deleted,
+    |          deletes the desired rental entry and adds it to the rental archive
+    |          the new archive entry has a change state of 2 indicating the
+    |          event being logged is a record deletion.
+    |
+    | Pre-condition: The rental archive and rental relations exist in the 
+    |                tylergarfield db and are acessable to the public.
+    |		     Public able to acccess rental archive seq.
+    |
+    | Post-condition: The given rental record has been deleted and archived
+    |                 or an informative error message has been thrown indicating
+    |                 why the desired rental record could not be deleted.
+    |
+    | Parameters: int rentalID - The unique id of the rental record to delete.
+    |
+    | Returns: int, the unique id of the rental archive record that has
+    |		been created or -1 if an error occured.
+    *-------------------------------------------------------------------*/ 
     public int deleteRentalRecord(int rentalID) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -791,12 +861,38 @@ public class DBController {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: addEquipmentRecord(String type, double size, String name)
+    |
+    | Purpose: Function attempts to add a new record to the equipment relation
+    |          with the desired atributes. Function first checks that all
+    |          aspects of the proposed new record are in fact valid. If a
+    |          new equipment record is able to be created then function also
+    |          adds the new record to the equipment archive with a changeState
+    |          of 0 indicating record creation.
+    |
+    | Pre-condition:  Equipment and Equipment_Archive relations exist in
+    |                 the tylergarfield db and are acesable to the public.
+    |                 Public able to acccess equipment archive seq.
+    |
+    | Post-condition: A new equipment record with the desired atributes has
+    |                 been added to the equipment relation, or if this has
+    |                 failed then a helpful error message has been thrown.
+    |                 Also new entry has been added to the archive with a
+    |                 changeState of 0 if equipment record was added.
+    |
+    | Parameters: String type - The desired equipment type for the new entry.
+    |             double size - The desired size of the new equipment record.
+    |             Strig name - The desired name of the new equipment record.
+    |
+    | Returns: int, the id of the equipment record that has been created
+    |		or -1 if an error occured.
+    *-------------------------------------------------------------------*/ 
     public int addEquipmentRecord(String type, double size, String name) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
 
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
-        // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         String equipSzString = Double.toString(size);
         int decimalInd = equipSzString.indexOf(".");
         if(type.equals("boot")) {
@@ -853,6 +949,31 @@ public class DBController {
         return equipmentID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: deleteEquipmentRecord(int equipmentID)
+    |
+    | Purpose: This function attempts to delete the givne equipment record
+    |          pointed to by the given id. Before deletion function checks
+    |          for things like does a record with the given id exist and
+    |          is the given record activly being rented at all. If equipment
+    |          record can not be deleted then a helpful error message has been
+    |          thrown.
+    |
+    | Pre-condition: The equipment, rental, and rental archive relations all
+    |                exist in the tylergarfield db and are asccesable to the
+    |                public. Public able to acccess equipment archive seq.
+    |
+    | Post-condition: The desired equipment record has been deleted and logged
+    |                 in the equipment archive with a changState of 2, or if
+    |                 the equipment record could not be deleted a helpful
+    |                 error message has been thrown.
+    |
+    | Parameters: int equipmentID - The id of the equipment record to be
+    |			potentially deleted.
+    |
+    | Returns: int, The id of the equipment archive record created or -1
+    |		if an error has occured.
+    *-------------------------------------------------------------------*/ 
     public int deleteEquipmentRecord(int equipmentID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -884,6 +1005,32 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: updateEquipmentType(int equipmentID,String newType)
+    |
+    | Purpose: Function attempts to update the equipment type of the given
+    |          equipment record to the desired new type. Function first checks
+    |	       for things such as if a equipment record with the given id actually
+    |          exists and if the proposed new equipment type maintains the
+    |          proposed records validity. Should the update fail a helpful
+    |          error message is thrown.
+    |
+    | Pre-condition:  The equipment and equipment archive records exist in
+    |                 the tylergarfield database and are accesable to the
+    |                 public. Public able to acccess equipment archive seq.
+    |
+    | Post-condition: The given record has an updated type or if the type
+    |                 could not be updated a helpful error message has been
+    |                 thrown. Also if the record was updated a new entry
+    |                 has been added to the equipment archive with a changeState
+    |                 of 1 indicating a update.
+    |
+    | Parameters: int equipmentID - The id of the equipment record to be updated.
+    |             String newType - The proposed new type of the equipment record.
+    |
+    | Returns: int, the id of the equipment archive entry that has recorded the update
+    |		or -1 if the update has failed.
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentType(int equipmentID,String newType) throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -942,6 +1089,34 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: updateEquipTypeSz(int equipmentID,String newType, double newSz)
+    |
+    | Purpose: This function attemps to update the given equipment record's
+    |	       type and size in conjunction with eachother. I added this
+    |          function for cases where there was no other valid equipment
+    |          type for the current size but one desires to update the
+    |          equipment type of the given record. As in the above functions
+    |          the equipment record is updated and the change is logged with
+    |          a change state of 1 indicating a record update.
+    |
+    | Pre-condition: The equipment and equipment_archive relations exist
+    |                in the tylergarfield database and are assecable to 
+    |		     to the public.  The public is also able to acess 
+    |	             the equipment archive id sequence.
+    |
+    |
+    | Post-condition: The givne equipment record has been updated and the
+    |                 update has been logged in the equipment_archive or
+    |                 a helpful error message has been thrown.
+    |
+    | Parameters: int equipmentID - The id of the equipment record to be updated.
+    |             String newType - The desired new type for this equipment record.
+    |             double newSz - The desired new size of this equipment record.
+    |
+    | Returns: int,the id of the equipmenet archive entry recording the equipment
+    |		record or -1 if an error has occured.
+    *-------------------------------------------------------------------*/ 
     public int updateEquipTypeSz(int equipmentID,String newType, double newSz) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
 
@@ -992,6 +1167,31 @@ public class DBController {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: updateEquipmentName(int equipmentID,String equipName)
+    |
+    | Purpose: Function attempts to update the desired equipment record's
+    |	       name. Since there are no stipulations on the equipment's name
+    |          so long as the given equipment id points to a valid equipment
+    |          record this function should successfully update the given record.
+    |
+    | Pre-condition:  The equipment, equipment archive relations exist in the
+    |                 tylergarield db and are assecable to the public. The
+    |                 public is also able to acess the equipment archive id
+    |		      sequence.
+    |
+    | Post-condition: The given equipment record has an updated name and the
+    |                 equipment archive has a new entry with a changState of
+    |                 1 to reflect this change or a helpful error message has
+    |                 been thrown.
+    |
+    | Parameters: int equipmentID - The id of the equipment record to be updated.
+    |		  String equipName - The desired new name for the given equipment
+    |			record.
+    |
+    | Returns: int, returns the id of the new equipment archive entry denoting
+    |		the update or -1 if an error has occured.
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentName(int equipmentID,String equipName) throws SQLException{
          Statement myStmt = dbconn.createStatement();
 
@@ -1021,6 +1221,31 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: updateEquipmentSize(int equipmentID, double newSize)
+    |
+    | Purpose: This function attempts to update the size of the given
+    |          equipment record to the new size. Function first checks
+    |          if the given equipment id is valid and if the proposed
+    |          new size is compatable with the current equipment type.
+    |          If the update is valid then the record is updated and a
+    |          new archive entry is created.
+    |
+    | Pre-condition: The equipment, equipment_archive relations exist in
+    |                the tylergarfield db and are acessable to the public.
+    |		     Same goes for the equipment_archive sequence.
+    |
+    | Post-condition: The given record has been updated and a new archive
+    |                 entry with a changeState of 1 has been created or
+    |                 if this failed a helpful error message has been thrown.
+    |
+    | Parameters: int equipmentID - The id of the desired equipment record to
+    |			be updated.
+    |             double newSize - The desired new size of the equipment record.
+    |
+    | Returns: int, the id of the equipment_archive entry denoting the update
+    |		or -1 if an error has occured.
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentSize(int equipmentID, double newSize) throws SQLException,IllegalArgumentException{
         Statement myStmt = dbconn.createStatement();
 
@@ -1034,7 +1259,6 @@ public class DBController {
 
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
-        // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         String equipSzString = Double.toString(newSize);
         int decimalInd = equipSzString.indexOf(".");
         char charAfterDecimal = equipSzString.charAt(decimalInd+1);
@@ -1177,6 +1401,27 @@ public class DBController {
         return profit;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: runQueryTwo(int skiPassID) 
+    |
+    | Purpose: Function prints out all lift entrys and equipment renetals
+    |          associated with the givne ski pass id. Specically for entries
+    |          the name of the lift and the entry time's are printed and for
+    |	       rentals the equipmenet name and rental time's are printed.
+    |
+    | Pre-condition: The SkiPass, Entry, Rental, and Equipment relations
+    |                all exist in their respective db's and are acessable
+    |                to the public.
+    |
+    | Post-condition: A nicley formated table has been printed to the user
+    |		      displaying the results of this query.
+    |
+    | Parameters: int skiPassID - The id of the ski pass entry to get the
+    |			asocciated information for.
+    |
+    | Returns: None. Prints query result to stdout or throws an exception
+    |		should a error occure.
+    *-------------------------------------------------------------------*/ 
     public void runQueryTwo(int skiPassID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         // First thing we need to do is determine if the given ski pass id is actually a valid
@@ -1188,18 +1433,18 @@ public class DBController {
         // Check the result to determine if there is a entry with the ski pass.
         if(!res.next()) {myStmt.close();throw new SQLException("Given pass id was not in ski pass table!");}
 
+        // Next perform the query for the first part of this which is getting the lift entries associated
+        // with the given ski pass.
         String queryLiftRides = "select lift_name, entrance_time from mandyjiang.Entry where pass_id=%d";
         queryLiftRides = String.format(queryLiftRides,skiPassID);
         res = myStmt.executeQuery(queryLiftRides);
 
+        // Print out the result table of the above query.
         System.out.println("\t\t\t*********************************************************");
 
         String colHeadersLift = "\t\t\t%-25s  %-30s";
         colHeadersLift = String.format(colHeadersLift,"Lift name","Entered At Time");
         System.out.println(colHeadersLift);
-
-        //String colDashes = "% %-20s";
-        //colDashes = String.format(colDashes,"-","-");
 
         int numDashes = 25;
         int numDashes2 = 30;
@@ -1230,6 +1475,8 @@ public class DBController {
         for(int i=0; i<numDashes2; i++) {System.out.print("-");}
         System.out.println();
 
+        // Now perform the second part of this query which is getting all the equipment name's and rentalTime's
+        // of all rentals associated with the given ski pass.
         String queryRentalRecords = "select name,rentalTime from tylergarfield.Rental join " +
 				    "tylergarfield.Equipment on tylergarfield.Rental.equipmentID = " +
 				    "tylergarfield.Equipment.equipmentID where skiPassID=%d";
@@ -1248,7 +1495,22 @@ public class DBController {
         myStmt.close();
     }
 
-
+    /*-------------------------------------------------------------------
+    | Method: void printOutRentals()
+    |
+    | Purpose: Print out the contents of the Rental relation to the user.
+    |
+    | Pre-condition:  Rental relation exists in the tylergarfield db and
+    |                 is able to be used by the public.
+    |
+    | Post-condition: The current contents of the Rental relation has
+    |		      been printed to stdout in a neat manner or a exception
+    |                 has been thrown.
+    |
+    | Parameters: None.
+    |
+    | Returns: None. Prints to stdout.
+    *-------------------------------------------------------------------*/ 
     public void printOutRentals() throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -1275,7 +1537,22 @@ public class DBController {
 
     }
 
-
+    /*-------------------------------------------------------------------
+    | Method: void printOutEquipment()
+    |
+    | Purpose: Method prints out the contents of the equipment relation to
+    |	       the user.
+    |
+    | Pre-condition: The Equipment relation exists in the tylergarfield db
+    |		     and is able to be used by the public.
+    |
+    | Post-condition: The contents of the equipment relation have been printed
+    |                 to stdout or a exception has been thrown.
+    |
+    | Parameters: None.
+    |
+    | Returns: None. Prints to stdout or throws an exception.
+    *-------------------------------------------------------------------*/ 
     public void printOutEquipment() throws SQLException {
         Statement myStmt = dbconn.createStatement();
 
