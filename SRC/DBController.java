@@ -448,7 +448,30 @@ public class DBController {
         }
     }
 
-    // TODO implement these.
+    /*-------------------------------------------------------------------
+    | Method: addRentalRecord(int skiPassID, int equipmentID)
+    |
+    | Purpose: This method adds a new rental to the Rental relation containing
+    |	       all records of equipment rentals within the SkiResort. Function
+    |          first verifies that the given skipass and equipment id's actully
+    |          to valid entries in their respective relations and then the new 
+    |          record is added.
+    |
+    | Pre-condition:  The SkiPass, and Equipment relations exist.
+    |
+    | Post-condition: A new record has been added to the Rental relation denoting
+    |                 a rental of the given equipment record by the given skipass
+    |                 record.
+    |
+    | Parameters: int skiPassID - The id denoting which ski pass record this
+    |			rental is being made from.
+    |             int equipmentID - The id pointing to the equipment record
+    |			that is being rented by the given ski pass.
+    |
+    | Returns: int, Attempts to add a new record to the rental relation if
+    |		this is not possible then a error is thrown. Otherwise log id
+    |           is returned.
+    *-------------------------------------------------------------------*/
     public int addRentalRecord(int skiPassID, int equipmentID) throws SQLException,IllegalStateException{
 	Statement myStmt = dbconn.createStatement();
 	// First thing we need to do is determine if the given ski pass id is actually a valid
@@ -491,7 +514,27 @@ public class DBController {
         return rentalID;
     }
     
-    // TODO add function here to modify rental time here!!!!!!
+    /*-------------------------------------------------------------------
+    | Method: updateRentalTime(int rentalID)
+    |
+    | Purpose: This function, givne a rentalID pointing to the rental record
+    |          attempt to update the corresponding record's rental time. Function
+    |          throws an error if the given rental id does not point to a valid
+    |          rental record.
+    |
+    | Pre-condition: the Rental relation exists in my db and can be acessed
+    |                by the public.
+    |
+    | Post-condition: If the given rentalID points to a valid rental record
+    |                 then then that record's rental time has been updated to
+    |                 the current time if the rentalID was valid.
+    |
+    | Parameters: int rentalID - The id for the rental relation to update
+    |			the corresponding records time.
+    |
+    | Returns: int, return the id of the newly generated log record denoting
+    |		the updated rental time.
+    *-------------------------------------------------------------------*/ 
     public int updateRentalTime(int rentalID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -522,7 +565,27 @@ public class DBController {
         return rentalArchiveID;
     }
 
-    // Function returns 1 for a normal error and 2 if the givne rentalID does not exist.
+    /*-------------------------------------------------------------------
+    | Method: returnEquipment(int rentalID)
+    |
+    | Purpose: Function attempts to update the rental record pointed to by
+    |          the given rental id to a returned status thereby returning
+    |          the desired piece of equipment. Function throws an error if
+    |          an invalid rental is given or if equipmene has already been
+    |          returned.
+    |
+    | Pre-condition: The Rental and Rental_Archive relations are active and
+    |                acessable to the public.
+    |
+    | Post-condition: The Rental relation has been updated with the record
+    |                 pointed to by rentalID now having a returned status.
+    |                 Or an informative error has been thrown.
+    |
+    | Parameters: int rentalID - The id of the rental record to be updated.
+    |
+    | Returns: Function attempts to update the desired rental record and returns
+    |		the log id of the logging the changed record.
+    *-------------------------------------------------------------------*/ 
     public int returnEquipment(int rentalID) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -562,6 +625,19 @@ public class DBController {
         return rentalArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int deleteRentalRecord(int rentalID) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
         // First verify that the given rentalID is in the Rental relation.
@@ -615,12 +691,24 @@ public class DBController {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int addEquipmentRecord(String type, double size, String name) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
 
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
-        // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         String equipSzString = Double.toString(size);
         int decimalInd = equipSzString.indexOf(".");
         if(type.equals("boot")) {
@@ -677,6 +765,19 @@ public class DBController {
         return equipmentID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int deleteEquipmentRecord(int equipmentID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -708,6 +809,19 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentType(int equipmentID,String newType) throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -766,6 +880,19 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int updateEquipTypeSz(int equipmentID,String newType, double newSz) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
 
@@ -816,6 +943,19 @@ public class DBController {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentName(int equipmentID,String equipName) throws SQLException{
          Statement myStmt = dbconn.createStatement();
 
@@ -845,6 +985,19 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public int updateEquipmentSize(int equipmentID, double newSize) throws SQLException,IllegalArgumentException{
         Statement myStmt = dbconn.createStatement();
 
@@ -858,7 +1011,6 @@ public class DBController {
 
         // Now check if the given size is valid for the given equipment type. Caller needs to verify that the
         // number given is either x.0 or x.5 for boots or x.0 for any other gear type. Rental gear will just have.
-        // TODO you were here ACTUALLY FILL IN THESE CHECKS.
         String equipSzString = Double.toString(newSize);
         int decimalInd = equipSzString.indexOf(".");
         char charAfterDecimal = equipSzString.charAt(decimalInd+1);
@@ -1001,6 +1153,19 @@ public class DBController {
         return profit;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public void runQueryTwo(int skiPassID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         // First thing we need to do is determine if the given ski pass id is actually a valid
@@ -1021,9 +1186,6 @@ public class DBController {
         String colHeadersLift = "\t\t\t%-25s  %-30s";
         colHeadersLift = String.format(colHeadersLift,"Lift name","Entered At Time");
         System.out.println(colHeadersLift);
-
-        //String colDashes = "% %-20s";
-        //colDashes = String.format(colDashes,"-","-");
 
         int numDashes = 25;
         int numDashes2 = 30;
@@ -1072,7 +1234,19 @@ public class DBController {
         myStmt.close();
     }
 
-
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public void printOutRentals() throws SQLException{
         Statement myStmt = dbconn.createStatement();
 
@@ -1099,7 +1273,19 @@ public class DBController {
 
     }
 
-
+    /*-------------------------------------------------------------------
+    | Method: 
+    |
+    | Purpose: 
+    |
+    | Pre-condition:  
+    |
+    | Post-condition: 
+    |
+    | Parameters: 
+    |
+    | Returns: 
+    *-------------------------------------------------------------------*/ 
     public void printOutEquipment() throws SQLException {
         Statement myStmt = dbconn.createStatement();
 
