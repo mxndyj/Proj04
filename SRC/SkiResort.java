@@ -237,6 +237,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void rentalMenu()
+    |
+    | Purpose: Function serves as rental sub menu deciding what method to
+    |          call next depending upon what number the user selects.
+    |
+    | Pre-condition: in is not null and points to valid class intance.
+    |
+    | Post-condition: The aproprite method has been called in response to the
+    |		      user's choice.
+    |
+    | Parameters: None. Gets input for decision from user.
+    |
+    | Returns: None. Calls apropriete function.
+    *-------------------------------------------------------------------*/ 
     private void rentalMenu() {
         String rentalEquipMen =  "\t\tEquipment Rentals:\n"+
             "\t\t1. Make New Equipment Rental With Ski Pass\n"+
@@ -258,6 +273,22 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void equipmentMenu()
+    |
+    | Purpose: This function is the equipment submenu and takes in an int
+    |	       from the user and then calls the apropriet function based
+    |          upon what the user input.
+    |
+    | Pre-condition: in is not null and points to valid class intance.
+    |
+    | Post-condition: The apropriet function has been called in response to
+    |		      the users input.
+    |
+    | Parameters: None. Gets all input from user.
+    |
+    | Returns: None. Calls desired function.
+    *-------------------------------------------------------------------*/ 
     private void equipmentMenu() {
         String equipMen =  "\t\tEquipment Rentals:\n"+
             "\t\t1. Input a new piece of equipment\n"+
@@ -283,6 +314,25 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void addEquipmentRental()
+    |
+    | Purpose: Function first gets user input on what ski pass and equipment
+    |	       they would like this new rental record to be asociated with
+    |	       and then calls on the DBController class instance to actually
+    |	       add the new rental record to the db.
+    |
+    | Pre-condition: db and instance variables are not null and points to a valid
+    |		     class instance.
+    |
+    | Post-condition: The new rental record has been added and the new id has
+    |		      been printed to the user or a helpful error message has
+    |                 been printed.
+    |
+    | Parameters: None. Gets all input from user.
+    |
+    | Returns: None. Prints out results of attempted record creation.
+    *-------------------------------------------------------------------*/ 
     private void addEquipmentRental() {
         System.out.print("First, system needs a valid ski pass id: ");int skiPassId = readInt();
         System.out.print("Next, system needs a valid equipment id: ");int equipmentId = readInt();
@@ -298,6 +348,24 @@ public class SkiResort {
         } 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void returnEquipment()
+    |
+    | Purpose: This function gets input from the user on what rental record
+    |	       they desire to be updated with a returned equipment status and
+    |	       then prints the resulting archive id to the user or a helpful
+    |          error message.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The rental record has been updated and the resulting
+    |		      log id has been printed to the user or a helpful error
+    |                 message has been printed.
+    |
+    | Parameters: None. Gets all input paramaters from the user via stdin.
+    |
+    | Returns: None. Prints results of record update to the user.
+    *-------------------------------------------------------------------*/ 
     private void returnEquipment() {
         System.out.print("Enter a valid rentalID: ");int rentalID = readInt();
 
@@ -311,6 +379,23 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void deleteRentalRecord()
+    |
+    | Purpose: This function gets input from the user via stdin on what
+    |          renetal record they wish to be deleted and prints the results
+    |          of the attempted deletion to stdout.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The rental record has been updated and the new log
+    |		      id has been printed to the user or a helpful error
+    |                 message has been printed out.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints results of the record deletion to stdout.
+    *-------------------------------------------------------------------*/ 
     private void deleteRentalRecord() {
         System.out.print("Enter a valid rentalID: ");int rentalID = readInt();
 
@@ -325,7 +410,25 @@ public class SkiResort {
 
     }
 
-    private void updateRentalTime() { //
+    /*-------------------------------------------------------------------
+    | Method: void updateRentalTime()
+    |
+    | Purpose: Function takes from the user the set admin password and
+    |          the id of the rental record to be updated and then calls
+    |          db to attempt to update rental time to now.
+    |		*** ADMIN PW IS SET AT VERY TOP OF THIS CLASS ***
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The results of the attempted update have been printed
+    |                 to the user via stdout. If update succeded user has
+    |                 associated log id.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints update resutls to user via stdout.
+    *-------------------------------------------------------------------*/ 
+    private void updateRentalTime() {
         System.out.print("Enter the admin password to modify rental time: ");String givenPw = in.nextLine();
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct time update denied!");
@@ -344,6 +447,24 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void addEquipmentRecord()
+    |
+    | Purpose: This function attempts to add a new equipment record to the
+    |          to the equipment relation. Function gets user input for each
+    |          record attribute and partially validates the given input. The
+    |          remaining validation occures within the DBController class.
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The results of the update have been relayed to the user
+    |                 via stdout and if the update has succeeded the id of the
+    |                 new record has been printed to the user.
+    |
+    | Parameters: None. Gets all input from the user via stdin.
+    |
+    | Returns: None. Prints results of update to stdout.
+    *-------------------------------------------------------------------*/ 
     private void addEquipmentRecord() {
         // First get the equipment type.
         System.out.print("Equipment type: ");String type = in.nextLine();
@@ -380,6 +501,25 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void updateEquipmentType()
+    |
+    | Purpose: This function attempts to update the desired equipment record's
+    |          type to the desired new type. If the update is successfull then
+    |	       the id of the newly generated archive entry is printed. Otherwise
+    |          a helpful error message is printed.
+    |           *** ADMIN PW AT THE VERY TOP OF THIS CLASS ***
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The given equipment entry has been updated and the log
+    |		      entry id relayed to the user or a helpful error message
+    |                 has been printed.
+    |
+    | Parameters: None. Gets all input from the user via stdin.
+    |
+    | Returns: None. Prints results of update to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void updateEquipmentType() {
         // First get the equipment id from the user of the record they wish to modify. Also verify
         // their admin status.
@@ -405,6 +545,25 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void updateEquipmentName()
+    |
+    | Purpose: This function attempts to update the given equipment record's
+    |	       name to the given desired name. The only preq for a succesfull
+    |          update here is a valid equipment id as there are no stipulations
+    |	       on a piec of equipment's name.
+    |           *** ADMIN PW AT THE VERY TOP OF THIS CLASS ***
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The desired equipment record's name has been updated
+    |                 and the resulting log id has been relayed to the user
+    |                 or a helpful error message has been printed.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints results of update to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void updateEquipmentName() {
         // First get the equipment id from the user of the record they wish to modify. Also verify
         // their admin status.
@@ -429,7 +588,26 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void updateEquipmentSize()
+    |
+    | Purpose: This function attempts to update the given equipment record to
+    |          the desired new size. This update will only succeeed if the new
+    |          size is compatible with the valid record's current type.
+    |           *** ADMIN PW AT THE VERY TOP OF THIS CLASS ***
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The desired equipment record's size has been updated
+    |                 and the associated log id is relayed to the user or
+    |                 an informative error message has been printed.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints results of the update to the user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void updateEquipmentSize() {
+        // First get the admin password and the id of the equipment record to be updated and the new desired size.
         System.out.print("Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
         if(!givenPw.equals(sysAdPass)) {
             System.out.println("Given admin password was not correct name update denied!");
@@ -462,6 +640,22 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void deleteEquipmentRecord()
+    |
+    | Purpose: This function attempts to delete the given equipmet record. If
+    |          the deletion is successful the associated log id is printed
+    |          otherwise a helpful error message has been printed.
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The equipment record has been updated and the log id
+    |                 relayed or a helpful error message has been printed.
+    |
+    | Parameters: None. Get input from stdin.
+    |
+    | Returns: None. Prints all output to stdout.
+    *-------------------------------------------------------------------*/ 
     private void deleteEquipmentRecord() {
         System.out.print("Enter the equipment id of the record you wish to delete: ");int equipmentID = readInt();
 
@@ -476,10 +670,34 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void updateEquipTypeSz()
+    |
+    | Purpose: This function attempts to jointly update the given equipmet
+    |          record's type and size jointly. This adresses cases where
+    |          the record can only remain valid if both attributes are changed.
+    |          Function relayes log id if updated or helpful error message.
+    |           *** ADMIN PW AT THE VERY TOP OF THIS CLASS ***
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The desired equipment record has been updated and the
+    |		      update log id relayed or a helpful error message printed.
+    |
+    | Parameters: None. Gets input from stdin.
+    |
+    | Returns: None. Outputs results to stdout.
+    *-------------------------------------------------------------------*/ 
     private void updateEquipTypeSz() {
-    //updateEquipTypeSz(int equipmentID,String newType, int newSz)
+        // First get the admin password and the id of the equipment record to be updated and the new desired size.
+        System.out.print("Enter the admin password to modify equipment attributes: ");String givenPw = in.nextLine();
+        if(!givenPw.equals(sysAdPass)) {
+            System.out.println("Given admin password was not correct name update denied!");
+            return;
+        }
+
     
-        // First get the equipment id of the record that should be updated.
+        // Next get the equipment id of the record that should be updated.
         System.out.print("Enter a valid equipment id: ");int equipmentID = readInt();
 
         //Next get the new desired equipment type from the user.
@@ -516,6 +734,20 @@ public class SkiResort {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getEquipmentTable()
+    |
+    | Purpose: Display the current contents of the equipment relation.
+    |
+    | Pre-condition: db has been initiated to valid class instances.
+    |
+    | Post-condition: The contents of the equipment relation have been
+    |		      neatly printed to stdout.
+    |
+    | Parameters: None.
+    |
+    | Returns: None. Prints to stdout.
+    *-------------------------------------------------------------------*/ 
     private void getEquipmentTable(){
         // Just call the db controllers method to print out the equipment table.
         try {
@@ -525,6 +757,20 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getRentalTable()
+    |
+    | Purpose: Print current contents of rental relation to stdout.
+    |
+    | Pre-condition: db has been initiated to valid class instances.
+    |
+    | Post-condition: Contents of rental relation have been nearlt printed
+    |                 to stdout.
+    |
+    | Parameters: None.
+    |
+    | Returns: None. Prints to stdout.
+    *-------------------------------------------------------------------*/ 
     private void getRentalTable(){
         // Just call the db controllers method to print out the rental table.
         try {
@@ -534,6 +780,22 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void queryTwo()
+    |
+    | Purpose: Function gets input needed for query two to get entries and
+    |          rentals associated with a given skipass and then relays that
+    |          info to DBController's runQuerTwo to actually compute and display
+    |          the query results.
+    |
+    | Pre-condition: db and in have been initiated to valid class instances.
+    |
+    | Post-condition: The results of query two have been printed to stdout.
+    |
+    | Parameters: None. Gets desired ski pass id from stdin.
+    |
+    | Returns: None. Prints results in a neat tabular format to stdout.
+    *-------------------------------------------------------------------*/ 
     private void queryTwo() {
         System.out.print("Enter a valid ski pass id: ");int skiPassID =readInt();
         try{
