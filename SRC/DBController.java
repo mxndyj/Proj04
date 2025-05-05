@@ -1,6 +1,40 @@
 import java.sql.*;
 import java.util.ArrayList;
 
+
+/*----------------------------------------------------------------------
+ ||
+ ||  Class [Class Name] 
+ ||
+ ||         Author:  [Your Name]
+ ||
+ ||        Purpose:  [A description of why this class exists.  For what
+ ||                   reason was it written?  Which jobs does it perform?]
+ ||
+ ||  Inherits From:  [If this class is a subclass of another, name it.
+ ||                   If not, just say "None."]
+ ||
+ ||     Interfaces:  [If any predefined interfaces are implemented by
+ ||                   this class, name them.  If not, ... well, you know.]
+ ||
+ |+-----------------------------------------------------------------------
+ ||
+ ||      Constants:  [Name all public class constants, and provide a very
+ ||                   brief (but useful!) description of each.]
+ ||
+ |+-----------------------------------------------------------------------
+ ||
+ ||   Constructors:  [List the names and arguments of all defined
+ ||                   constructors.]
+ ||
+ ||  Class Methods:  [List the names, arguments, and return types of all
+ ||                   public class methods.]
+ ||
+ ||  Inst. Methods:  [List the names, arguments, and return types of all
+ ||                   public instance methods.]
+ ||
+ ++-----------------------------------------------------------------------*/
+
 public class DBController {
     private static final String URL="jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
     private final Connection dbconn;
