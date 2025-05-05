@@ -1,5 +1,57 @@
+/*=============================================================================
+ |   Assignment:  Program #[n]:  [Assignment Title]
+ |       Author:  [Your Name (Your E-mail Address)]
+ |       Grader:  [Your TA or Section Leader's name]
+ |
+ |       Course:  [Course Number]
+ |   Instructor:  L. McCann
+ |     Due Date:  [Due Date and Time]
+ |
+ |  Description:  [Describe the program's goal, IN DETAIL.]
+ |
+ |     Language:  [Programming language and version used.]
+ | Ex. Packages:  [List names and sources of all external packages
+ |                required by this program.]
+ |                
+ | Deficiencies:  [If you know of any problems with the code, provide
+ |                details here, otherwise clearly state that you know
+ |                of no unsatisfied requirements and no logic errors.]
+ *===========================================================================*/
 
 import java.util.Scanner;
+
+/*----------------------------------------------------------------------
+ ||
+ ||  Class [Class Name] 
+ ||
+ ||         Author:  [Your Name]
+ ||
+ ||        Purpose:  [A description of why this class exists.  For what
+ ||                   reason was it written?  Which jobs does it perform?]
+ ||
+ ||  Inherits From:  [If this class is a subclass of another, name it.
+ ||                   If not, just say "None."]
+ ||
+ ||     Interfaces:  [If any predefined interfaces are implemented by
+ ||                   this class, name them.  If not, ... well, you know.]
+ ||
+ |+-----------------------------------------------------------------------
+ ||
+ ||      Constants:  [Name all public class constants, and provide a very
+ ||                   brief (but useful!) description of each.]
+ ||
+ |+-----------------------------------------------------------------------
+ ||
+ ||   Constructors:  [List the names and arguments of all defined
+ ||                   constructors.]
+ ||
+ ||  Class Methods:  [List the names, arguments, and return types of all
+ ||                   public class methods.]
+ ||
+ ||  Inst. Methods:  [List the names, arguments, and return types of all
+ ||                   public instance methods.]
+ ||
+ ++-----------------------------------------------------------------------*/
 
 public class SkiResort {
     private final Scanner in =new Scanner(System.in);
