@@ -44,6 +44,8 @@ The four required queries are on the Main Menu as "8. Queries".
 --- Workload Distribution ---
 Tyler Garfield:
 Mandy Jiang:
+    - SkiPass, Member, Lift entry operations. [DBController, SKiResort, tables.sql]
+    - Design PDF corresponding FDs.
 Alex Scherer:
 Jeffrey Layton:
     - Add, update, or delete a lesson purchase record
