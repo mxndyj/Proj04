@@ -184,7 +184,6 @@ public class DBController {
             }
         }
 	
-	//System.out.println("Adding old rentals to rental archive!");  
         // Next we are going to delete the returned equipment rentals and put them in the rental log.
         //PreparedStatement getRIDs= null;
         try(PreparedStatement stmt = dbconn.prepareStatement("select rentalID from tylergarfield.Rental where skiPassID= ?")) {
@@ -206,20 +205,19 @@ public class DBController {
                     stmt1.setInt(2,rentalID);
                     stmt1.executeUpdate();
                 }
-                //System.out.println("Was able to add new rental to the archive!");
                 // Now that that is done we can delete the rental record from the main Rental relation.
                 String deleteRental = "delete from tylergarfield.Rental where rentalID=?";
                 try(PreparedStatement stmt2 = dbconn.prepareStatement(deleteRental)) {
                     stmt2.setInt(1,rentalID);
                     stmt2.executeUpdate();
                 }
-                //System.out.println("Got to after deletion of old rental record");
+
               }
             }
            
         }
         
-        //System.out.println("Was able to add old rentals to rental archive!"); 
+
 
         // Now, Archive / delete 
         String archiveSql="""
@@ -236,7 +234,6 @@ public class DBController {
         String deleteSql=
           "DELETE from mandyjiang.SkiPass where pass_id=?";
     
-	//System.out.println("Was able to delete the ski pass!"); 
         try (PreparedStatement a=dbconn.prepareStatement(archiveSql);
              PreparedStatement d=dbconn.prepareStatement(deleteSql)) {
             a.setInt(1,pid); 
@@ -332,22 +329,6 @@ public class DBController {
             }
         }
     }
-
-    // TODO implement these.
-    // public int addRentalRecord(int skiPassID, int equipmentID) {
-    // }
-    //
-    // public int deleteRentalRecord(int rentalID) {
-    // }
-    //
-    // public int addEquipmentRecord(String type, int size, String name) {
-    // }
-    //
-    // public int deleteEquipmentRecord(int equipmentID) {
-    // }
-
-
-    // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
 
     public void getLessons() throws SQLException {
         String sql = """
