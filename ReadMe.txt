@@ -1,8 +1,13 @@
 --- Compilation & Usage ---
 
-Compilation: javac SkiResort.java
+Enter the SRC directory
+cd SRC/
 
-Run: java SkiResort <oracle username> <oracle password>
+Compile the application
+javac SkiResort.java
+
+Run the application
+java SkiResort <oracle username> <oracle password>
 
 Follow the menus to execute desired functionality by entering the number of the menu/function you with to execute. Follow the prompts to input any necessary data.
 The four required queries are on the Main Menu as "8. Queries".

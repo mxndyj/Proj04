@@ -295,7 +295,6 @@ public class DBController {
         """;
 
         try (PreparedStatement p = dbconn.prepareStatement(sql)) {
-            //System.err.println("tigkajs;f");
             try (ResultSet rs = p.executeQuery()) {
                 String trail = "";
                 String category = "";
@@ -323,7 +322,7 @@ public class DBController {
                         category = rs.getString("category");
                         difficulty = rs.getString("difficulty");
                         String newLift = rs.getString("lift_name");
-                        if (lifts.indexOf(newLift) != -1) {
+                        if (lifts.indexOf(newLift) == -1) {
                             lifts.add(newLift);
                         }
                     }
@@ -350,7 +349,74 @@ public class DBController {
 
     // equipment,  equipment rental, lesson purchase, queries (maybe implement in other files?)
 
-    // Lesson + Lesson Purchase
+    public void getLessons() throws SQLException {
+        String sql = """
+        select l.lesson_id, l.private, l.time, e.employee_id, e.name, e.certification_level
+        from jeffreylayton.Lesson l
+        join jeffreylayton.Employee e on e.employee_id = l.instructor_id
+        """;
+
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            try (ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    int lesson_id = rs.getInt("lesson_id");
+                    int isPrivate = rs.getInt("private");
+                    String time = rs.getString("time");
+                    int eid = rs.getInt("employee_id");
+                    String eName = rs.getString("name");
+                    int eCert = rs.getInt("certification_level");
+
+                    String cert = "";
+                    switch (eCert) {
+                        case 1 -> { cert="I"; }
+                        case 2 -> { cert = "II"; }
+                        case 3 -> { cert = "III"; }
+                        default -> {}
+                    }
+
+                    System.out.println("\tLesson: " + String.valueOf(lesson_id));
+                    System.out.println("\t\tPrivate: " + (isPrivate == 1 ? "yes" : "no"));
+                    System.out.println("\t\tTime: " + time);
+                    System.out.println("\t\tInstructor: " + String.valueOf(eid));
+                    System.out.println("\t\t\tName: " + eName);
+                    System.out.println("\t\t\tCertification: " + cert);
+                }
+            }
+        }
+    }
+
+    public void getEmployees() throws SQLException {
+        String sql = """
+        select employee_id, position, start_date, name, age, salary, sex, ethnicity
+        from jeffreylayton.Employee
+        """;
+
+        try (PreparedStatement p = dbconn.prepareStatement(sql)) {
+            try (ResultSet rs = p.executeQuery()) {
+                while (rs.next()) {
+                    int eid = rs.getInt("employee_id");
+                    String position = rs.getString("position");
+                    Date startDate = rs.getDate("start_date");
+                    String name = rs.getString("name");
+                    int age = rs.getInt("age");
+                    int salary = rs.getInt("salary");
+                    String sex = rs.getString("sex");
+                    String ethnicity = rs.getString("ethnicity");
+
+                    System.out.println("\tEmployee: " + String.valueOf(eid));
+                    System.out.println("\t\tName: " + name);
+                    System.out.println("\t\tPosition: " + position);
+                    System.out.println("\t\tSalary: " + String.valueOf(salary));
+                    System.out.println("\t\tStart Date: " + startDate.toString());
+                    System.out.println("\t\tAge: " + String.valueOf(age));
+                    System.out.println("\t\tSex: " + sex);
+                    System.out.println("\t\tEthnicity: " + ethnicity);
+                }
+            }
+        }
+    }
+
+    // Lesson Purchase
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
         int id = getNextId("LessonPurchase", "jeffreylayton");
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
