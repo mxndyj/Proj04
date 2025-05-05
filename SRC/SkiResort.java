@@ -58,6 +58,13 @@ public class SkiResort {
     private DBController db;
     private final String sysAdPass="1234";
 
+
+    /*
+     * Entry point for the Ski Resort Management System.
+     * Validates cmd line args and launches the UI.
+     * 
+     * @param args Oracle username and password
+     */
     public static void main(String[] args) {
         if (args.length !=2 ) {
             System.err.println("Usage: java SkiResort <oracle user> <oracle pass>");
@@ -66,6 +73,13 @@ public class SkiResort {
         new SkiResort().run(args[0], args[1]);
     }
 
+
+    /*
+     * Establishes a DB connection and start the main menu loop.
+     * 
+     * @param user Oracle username
+     * @param pass Oracle password
+     */
     private void run(String user, String pass) {
         try {db =new DBController(user, pass);
             mainMenu();
@@ -76,6 +90,11 @@ public class SkiResort {
         }
     }
 
+
+    /*
+     * Main menu dispatcher for different features in the Ski Resort System.
+     * Handles user input and routes to appropriate submenus.
+     */
     private void mainMenu() {
         while (true) {
             System.out.print(
@@ -106,6 +125,11 @@ public class SkiResort {
         }
     }
 
+
+
+    /*
+     * Handles the submenu for managing members: add, update, or delete.
+     */
     private void memberMenu() {
         System.out.print(
             "\t\tMember:\n"+
@@ -124,6 +148,11 @@ public class SkiResort {
         }
     }
 
+
+
+    /*
+     * Adds a new member to the system by collecting user input and calling DBController.
+     */
     private void addMember() {
         System.out.print("Name: "); String name =in.nextLine();
         System.out.print("Phone: "); String phone =in.nextLine();
@@ -137,7 +166,11 @@ public class SkiResort {
             System.out.println("Error: "+ e.getMessage() + "\n");
         }
     }
-
+	
+    /*
+     * Updates an existing member’s contact and emergency details.
+     * User can selectively update fields by leaving inputs blank.
+     */
     private void updateMember() {
         System.out.print("Member ID: "); int id =readInt();
         System.out.print("New phone (enter to keep old): "); String phone =in.nextLine();
@@ -154,6 +187,10 @@ public class SkiResort {
         }
     }
 
+
+    /*
+     * Deletes a member after checking for constraints like active passes or rentals.
+     */
     private void deleteMember() {
         System.out.print("Member ID: "); int id =readInt();
         try {
@@ -164,6 +201,10 @@ public class SkiResort {
         }
     }
 
+
+   /*
+    * Displays the ski pass menu to add, adjust, or delete/archive passes.
+    */
     private void passMenu() {
         System.out.print(
             "\t\tSki Pass\n"+
@@ -182,6 +223,10 @@ public class SkiResort {
         }
     }
 
+	
+   /*
+    * adds a new ski pass for a given member with the selected type and expiration.
+    */
     private void addPass() {
         System.out.print("Member ID: "); int mid =readInt();
         System.out.print("Type (1-DAY,2-DAY,4-DAY,SEASON): "); String type =in.nextLine().toUpperCase();
@@ -194,6 +239,10 @@ public class SkiResort {
         }
     }
 
+
+    /*
+     * Updates the remaining uses on a ski pass.
+     */
     private void adjustPass() {
         System.out.print("Pass ID: "); int pid = readInt();
         System.out.print("Remaining uses: "); int r = readInt();
@@ -205,6 +254,11 @@ public class SkiResort {
         }
     }
 
+	
+    /*
+     * Deletes and archives a ski pass if it meets requirements.
+     */
+
     private void deletePass() {
         System.out.print("Pass ID: "); int pid =readInt();
         try {
@@ -215,7 +269,10 @@ public class SkiResort {
         }
     }
 
-    //lift entry scan
+	
+    /*
+     * Records a ski lift entry and deducts one use from ski pass.
+     */
     private void liftEntry() {
         System.out.print("Pass ID: "); int pid =readInt();
         System.out.print("Lift name: "); String ln = in.nextLine();
