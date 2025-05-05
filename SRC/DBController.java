@@ -6,7 +6,7 @@
  *
  * Description:
  * The DBController class manages all database operations for the Ski Resort Management System.
- * It encapsulates the core logic for adding, updating, deleting, and querying relational data
+ * It coordinates the core logic for adding, updating, deleting, and querying relational data
  * related to members, ski passes, equipment rentals, lessons, lift entries, and property income.
  *
  * Usage:
