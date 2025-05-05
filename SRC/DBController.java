@@ -1,3 +1,19 @@
+/*
+ * DBController.java
+ * Assignment: CSC460 Project 4
+ * Authors: Tyler Garfield, Mandy Jiang, Jeffrey Layton, Alex Scherer
+ * Date: 05/05/2025
+ *
+ * Description:
+ * The DBController class manages all database operations for the Ski Resort Management System.
+ * It encapsulates the core logic for adding, updating, deleting, and querying relational data
+ * related to members, ski passes, equipment rentals, lessons, lift entries, and property income.
+ *
+ * Usage:
+ *     java SkiResort yourUser yourOraclePass
+ */
+
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -39,16 +55,34 @@ public class DBController {
     private static final String URL="jdbc:oracle:thin:@aloe.cs.arizona.edu:1521:oracle";
     private final Connection dbconn;
 
+    /*
+     * Constructs the DBController and connects to the Oracle database.
+     *
+     * @param user Oracle DB username
+     * @param pass Oracle DB password
+     * @throws exception if the driver fails to load or connection fails
+     */
     public DBController(String user,String pass) throws Exception {
         Class.forName("oracle.jdbc.OracleDriver");
         dbconn=DriverManager.getConnection(URL,user, pass);
     }
 
+
+    /*
+     * Closes the database connection.
+     */
     public void close() {
         try { dbconn.close(); } catch (SQLException ignored) {}
     }
 
-    //UNIQUE ID getter using sequences for each tablename
+    /*
+     * gets the next unique ID from a sequence for the given table.
+     *
+     * @param table Table name
+     * @param owner Schema owner name 
+     * @return The next integer of the sequence
+     * @throws SQLException if the query fails
+     */
     private int getNextId(String table,String owner) throws SQLException {
         String seq=table.toUpperCase() + "_SEQ";
         String sql="select " + owner + "." + seq + ".NEXTVAL FROM DUAL";
@@ -59,7 +93,19 @@ public class DBController {
         }
     }
 
-    //  Member
+
+	
+    /*
+     * adds a new member to the Member table with the given attributes.
+     *
+     * @param name Member's full name
+     * @param phone Member's phone number
+     * @param email Member's email address
+     * @param dob Date of birth in "YYYY-MM-DD" format, or null/empty for unknown
+     * @param emergency Emergency contact info
+     * @return The newly generated member ID
+     * @throws SQLException if the insert fails
+     */
 
     public int addMember(String name,String phone,String email,String dob,String emergency) throws SQLException {
         int id=getNextId("Member","mandyjiang");
@@ -84,6 +130,17 @@ public class DBController {
         return id;
     }
 
+	
+    /*
+     * updates an existing member's phone, email, and emergency contact.
+     * If any field is null, that field remains unchanged.
+     *
+     * @param id Member ID to update
+     * @param phone New phone number (nullable)
+     * @param email New email address (nullable)
+     * @param emergency New emergency contact (nullable)
+     * @throws SQLException if update fails or member does not exist
+     */
     public void updateMember(int id,String phone,String email,String emergency) throws SQLException {
         String sql="update mandyjiang.Member SET phone=COALESCE(?,phone),email=COALESCE(?,email),emergency_contact=COALESCE(?,emergency_contact) where member_id=?";
         try (PreparedStatement stmt=dbconn.prepareStatement(sql)) {
@@ -99,6 +156,19 @@ public class DBController {
         }
     }
 
+	
+    /*
+     * Deletes a member from the Member table after verifying that:
+     * - First, there is no active ski passes for them,
+     * - Then, they have no open equipment rentals,
+     * - Also, they have no unused lesson sessions.
+     * Also removes archived rental history associated with the member's ski passes.
+     *
+     * @param id Member ID to delete
+     * @return true if deletion succeeded, false otherwise
+     * @throws SQLException if a query fails
+     * @throws IllegalStateException if deletion rules are violated
+     */
     public boolean deleteMember(int id) throws SQLException {
          // refuse deletion if remaining_uses > 0 or expiration_date > now
         String checkPass= "select * from mandyjiang.SkiPass " +
@@ -145,7 +215,17 @@ public class DBController {
             }
     }
 
-    //  Ski Pass
+	
+    /*
+     * Adds a new ski pass for a member by looking up type values from the PassType table.
+     * Sets remaining uses and price automatically based on pass type.
+     *
+     * @param mid Member ID the pass belongs to
+     * @param type Type of the ski pass 
+     * @param exp Expiration date in "YYYY-MM-DD" format
+     * @return The newly generated ski pass ID
+     * @throws SQLException if the insert fails or the pass type is unknown
+     */
 
     public int addPass(int mid,String type,String exp) throws SQLException {
         int id=getNextId("SkiPass","mandyjiang");
@@ -178,7 +258,14 @@ public class DBController {
         return id;
     }
 
-
+	
+    /*
+     *  updates the remaining uses on a ski pass.
+     *
+     * @param pid Ski pass ID
+     * @param uses New remaining uses value
+     * @throws SQLException if the ski pass does not exist or update fails
+     */
     public void adjustPassUses(int pid,int uses) throws SQLException {
         String sql="update mandyjiang.SkiPass SET remaining_uses=? where pass_id=?";
         try (PreparedStatement stmt=dbconn.prepareStatement(sql)) {
@@ -192,6 +279,16 @@ public class DBController {
         }
     }
 
+	
+    /*
+     * archive and deletes a ski pass if it has no remaining uses and is expired.
+     * Also moves associated rental records to the Rental_Archive table and deletes them from active rentals.
+     *
+     * @param pid Ski pass ID to archive/delete
+     * @return true if deletion succeeded, false if not
+     * @throws SQLException if the pass is still active, rentals are unreturned, or any SQL operation fails
+     * @throws IllegalStateException if pass still has uses, is not expired, or rentals are not returned
+     */
     public boolean deletePass(int pid) throws SQLException {
         // check that the pass exists and is expired/used up
         try (PreparedStatement chk=dbconn.prepareStatement("select remaining_uses,expiration_date from mandyjiang.SkiPass where pass_id=?")) {
@@ -277,8 +374,21 @@ public class DBController {
         }
         
     }
+	
 
-    //  Lift Entry 
+    /**
+     * Records a lift entry for a ski pass by:
+     * - First, verifying the lift exists
+     * - Then, deducting one use from the pass
+     * - And finally, inserts a lift entry into the Entry table
+     *
+     * @param pid Ski pass ID
+     * @param liftName Lift name (case-insensitive)
+     * @return Remaining uses after entry
+     * @throws SQLException if the lift does not exist, the pass has no uses left, or the insert fails
+     * @throws IllegalArgumentException if the lift name is invalid
+     * @throws IllegalStateException if no uses are left on the ski pass
+     */
     public int recordLiftEntry(int pid,String liftName) throws SQLException {
         liftName=liftName.toUpperCase();
         //  lift exists
