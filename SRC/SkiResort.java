@@ -401,6 +401,7 @@ public class SkiResort {
             else {System.out.println("Error: Equipment record failed to be updated! Check given equipmentID!");}
         } catch(Exception e) {
             System.out.println("Error: " + e.getMessage() + "\n");
+            System.out.println("\t**Error info: if error is a key constraint then check you entered a valid equip type**\n");
         }
     }
 
@@ -476,12 +477,61 @@ public class SkiResort {
     }
 
     private void updateEquipTypeSz() {
+    //updateEquipTypeSz(int equipmentID,String newType, int newSz)
+    
+        // First get the equipment id of the record that should be updated.
+        System.out.print("Enter a valid equipment id: ");int equipmentID = readInt();
+
+        //Next get the new desired equipment type from the user.
+        System.out.print("Enter the new equipment type: ");String type = in.nextLine();
+
+         // Next get the size of the equipment.
+        double equipSize = 0.0;
+        boolean gotEquipSize = false;
+
+        while(!gotEquipSize) {
+              System.out.print("Equipment size: ");
+              if(in.hasNextDouble()) {
+                  equipSize = Double.parseDouble(in.nextLine());
+                  String equipSzString = Double.toString(equipSize);
+                  int decimalInd = equipSzString.indexOf(".");
+                  // Check that the size is also a whole number or .5 only if it is a ski boot.
+                  if(type.equals("boot")) {
+                      if(equipSzString.charAt(decimalInd+1)=='0'||equipSzString.charAt(decimalInd+1)=='5'){gotEquipSize=true;}
+                  } else {
+                      if(equipSize == (int) equipSize) {gotEquipSize=true;}
+                  }
+              } else { in.nextLine();}
+        }
+
+        // Now that we got the new equipment type and size the next thing to do is to actually pass that to the dbcontroller.
+        try {
+            int equipmentArchiveID = db.updateEquipTypeSz(equipmentID,type,equipSize);
+            if(equipmentArchiveID>=0) {System.out.println("Equipment record was succesfully updated. Log entry id is " +equipmentArchiveID+"\n");}
+            else { System.out.println("Equipment record failed to be updated, verify equipment id is valid.");}
+        } catch(Exception e) {
+            System.out.println("Error: " +  e.getMessage() + "\n");
+            System.out.println("\t**Error info: if error is a key constraint then check you entered a valid equip type**\n");
+        }
+
     }
 
     private void getEquipmentTable(){
+        // Just call the db controllers method to print out the equipment table.
+        try {
+            db.printOutEquipment();
+        } catch(Exception e) {
+            System.out.println("Error: " +  e.getMessage() + "\n");
+        }
     }
 
     private void getRentalTable(){
+        // Just call the db controllers method to print out the rental table.
+        try {
+            db.printOutRentals();
+        } catch(Exception e) {
+            System.out.println("Error: " +  e.getMessage() + "\n");
+        }
     }
 
     private void queryTwo() {

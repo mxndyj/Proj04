@@ -203,15 +203,17 @@ public class DBController {
                                     "where rentalID= ?";
                 try(PreparedStatement stmt1 = dbconn.prepareStatement(addRentalToArchive)) {
                     stmt1.setInt(1,rentalArchiveID);
-                    stmt1.setInt(2,pid);
+                    stmt1.setInt(2,rentalID);
                     stmt1.executeUpdate();
                 }
+                //System.out.println("Was able to add new rental to the archive!");
                 // Now that that is done we can delete the rental record from the main Rental relation.
-                String deleteRental = "delete from tylergarfield.Rental where rentalID=%d";
+                String deleteRental = "delete from tylergarfield.Rental where rentalID=?";
                 try(PreparedStatement stmt2 = dbconn.prepareStatement(deleteRental)) {
-                    stmt2.setInt(1,pid);
+                    stmt2.setInt(1,rentalID);
                     stmt2.executeUpdate();
                 }
+                //System.out.println("Got to after deletion of old rental record");
               }
             }
            
@@ -764,7 +766,7 @@ public class DBController {
         return equipmentArchiveID;
     }
 
-    public int updateEquipTypeSz(int equipmentID,String newType, int newSz) throws SQLException,IllegalStateException{
+    public int updateEquipTypeSz(int equipmentID,String newType, double newSz) throws SQLException,IllegalStateException{
         Statement myStmt = dbconn.createStatement();
 
         // First verify that the equipment that is attempting to be added actually exists.
@@ -794,7 +796,7 @@ public class DBController {
         }
 
         // Now actaully execute the update after we have validated that the update is valid.
-        String updateTypeSz = "update tylergarfield.Equipment set equip_type='%s',equip_size=%d where equipmentID=%d";
+        String updateTypeSz = "update tylergarfield.Equipment set equip_type='%s',equip_size=%f where equipmentID=%d";
         updateTypeSz = String.format(updateTypeSz,newType,newSz,equipmentID);
         int numRowsAffected = myStmt.executeUpdate(updateTypeSz);
 
@@ -1067,7 +1069,60 @@ public class DBController {
         }
 
         System.out.println("\t\t\t*********************************************************");
+        myStmt.close();
+    }
+
+
+    public void printOutRentals() throws SQLException{
+        Statement myStmt = dbconn.createStatement();
+
+        // First actually execute the query to get all columns of each tuple.
+        String getRentalTable = "select * from tylergarfield.Rental";
+        ResultSet res = myStmt.executeQuery(getRentalTable);
+
+        // Next print out the column headers for each field.
+        String colHeaders = "\t\t\t%-6s %-6s %-6s %-35s %-8s\n";
+        colHeaders = String.format(colHeaders,"rid","skipid","eid","rental time","ret stat");
+        System.out.print(colHeaders);
+        System.out.println("\t\t\t-----------------------------------------------------------------");
+
+        // Now make sure there are results and if there are any then print out each tuple.
+        String nextTupFmat = "\t\t\t%-6d %-6d %-6d %-35s %-8d\n";
+        if(res!=null) {
+            while(res.next()) {
+                String nextTup = String.format(nextTupFmat,res.getInt("rentalID"),res.getInt("skiPassID"),res.getInt("equipmentID"),
+						res.getString("rentalTime"),res.getInt("returnStatus"));
+                System.out.print(nextTup);
+            }
+        }
+        myStmt.close();
+
+    }
+
+
+    public void printOutEquipment() throws SQLException {
+        Statement myStmt = dbconn.createStatement();
+
+        // First actually execute the query to get all columns of each tuple.
+        String getEquipTable = "select * from tylergarfield.Equipment";
+        ResultSet res = myStmt.executeQuery(getEquipTable);
+
+        // Next print out the column headers for each field.
+        String colHeaders = "\t\t\t%-6s %-10s %-8s %-30s\n";
+        colHeaders = String.format(colHeaders,"eid","equip type","equip sz","equip name");
+        System.out.print(colHeaders);
+        System.out.println("\t\t\t--------------------------------------------------------");
+
+        String nextTupFmat = "\t\t\t%-6d %-10s %-8.1f %-30s\n";
+        // Now actually verify that there are results and for each tuple print that tuples info out.
+        if(res!=null) {
+            while(res.next()) {
+                String nextTup = String.format(nextTupFmat,res.getInt("equipmentID"),res.getString("equip_type"),
+					res.getDouble("equip_size"),res.getString("name"));
+                System.out.print(nextTup);
+            }
+        }
+        myStmt.close();
     }
 
 }
-
