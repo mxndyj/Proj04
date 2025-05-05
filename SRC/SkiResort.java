@@ -228,6 +228,22 @@ public class SkiResort {
         }
     }
 
+    private void getLessons() {
+        try {
+            db.getLessons();     
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n"); 
+        }
+    }
+
+    private void getEmployees() {
+        try {
+            db.getEmployees();     
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage() + "\n"); 
+        }
+    }
+
     private void getLessonsForMember() {
         System.out.print("Member ID: "); int mid = readInt();
         try {
@@ -815,6 +831,8 @@ public class SkiResort {
             "\t\t4. Get Yearly Profit\n"+
             "\t\t5. Display all equipment records\n"+
             "\t\t6. Display all rental records\n"+
+            "\t\t7. Display all lessons\n" +
+            "\t\t8. Display all employees\n" +
             "\t\t0. Back\n"+
             "\t\tEnter Option > ");
         int choice = readInt();
@@ -825,6 +843,8 @@ public class SkiResort {
             case 4 -> getYearlyProfit();
             case 5 -> getEquipmentTable();
             case 6 -> getRentalTable();
+            case 7 -> getLessons();
+            case 8 -> getEmployees();
             case 0 -> {} // back to main menu
             default -> System.out.println("Invalid choice.\n");
         }

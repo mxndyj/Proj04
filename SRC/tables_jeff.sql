@@ -54,6 +54,10 @@ grant select, insert, update, delete on jeffreylayton.Employee to public;
 grant select, insert, update, delete on jeffreylayton.Lesson to public;
 grant select, insert, update, delete on jeffreylayton.LessonPurchase to public;
 grant select, insert, update, delete on jeffreylayton.LessonPurchase_Archive to public;
+grant select on jeffreylayton.EMPLOYEE_SEQ to public;
+grant select on jeffreylayton.LESSON_SEQ to public;
+grant select on jeffreylayton.LESSONPURCHASE_SEQ to public;
+grant select on jeffreylayton.LESSONPURCHASE_ARCHIVE_SEQ to public;
 
 -- Employees
 INSERT INTO jeffreylayton.employee (employee_id, position, start_date, name, age, salary, sex, ethnicity, certification_level)
