@@ -420,7 +420,23 @@ public class DBController {
         return left;
     }
 
-
+    /*-------------------------------------------------------------------
+    | Method: getIntermediateTrails()
+    |
+    | Purpose: This method displays a list of all open BEGINNER and
+    |          INTERMEDIATE trails from the Trail relation and all
+    |          open lifts connected to each trail using the LiftTrail
+    |          and Lift relations.
+    |
+    | Pre-condition:  The Trail, Lift, and LiftTrail relations are exist
+    |                 and are accessible.
+    |
+    | Post-condition: The open trails and their lfits are displayed.
+    |
+    | Parameters: None.
+    |
+    | Returns: void or error - void unless an error occurs.
+    *-------------------------------------------------------------------*/
     public void getIntermediateTrails() throws SQLException {
         String sql = """
         select t.trail_name, t.difficulty, t.category, l.lift_name
@@ -474,6 +490,21 @@ public class DBController {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: getLessons()
+    |
+    | Purpose: This method displays a list of all lessons in the
+    |          Lesson relation and the instructor information from
+    |          the Employee relation.
+    |
+    | Pre-condition:  The Lesson and Employee relations exist and are accessible. 
+    |
+    | Post-condition: All Lessons are displayed.
+    |
+    | Parameters: None.
+    |
+    | Returns: void or error - void unless an error occurs.
+    *-------------------------------------------------------------------*/
     public void getLessons() throws SQLException {
         String sql = """
         select l.lesson_id, l.private, l.time, e.employee_id, e.name, e.certification_level
@@ -510,6 +541,20 @@ public class DBController {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: getEmployees()
+    |
+    | Purpose: This method displays a list of all employees in the
+    |          Employee relation.
+    |
+    | Pre-condition:  The Employee relation exists and is accessible. 
+    |
+    | Post-condition: All Employees are displayed.
+    |
+    | Parameters: None.
+    |
+    | Returns: void or error - void unless an error occurs.
+    *-------------------------------------------------------------------*/
     public void getEmployees() throws SQLException {
         String sql = """
         select employee_id, position, start_date, name, age, salary, sex, ethnicity
@@ -541,7 +586,32 @@ public class DBController {
         }
     }
 
-    // Lesson Purchase
+    /*-------------------------------------------------------------------
+    | Method: addLessonPurchase(int mid, int lid, int totalSessions, 
+    |                           int remaining)
+    |
+    | Purpose: This method adds a new lesson purchase order to the 
+    |          LessonPurchase relation containing all records of lesson 
+    |          purchases within the SkiResort. The order id of the created 
+    |          record is returned.
+    |
+    | Pre-condition:  The LessonPurchase relation exists and is accessible. 
+    |
+    | Post-condition: A new record has been added to the LessonPuchase relation 
+    |                 denoting a lesson has been purchased by a member.
+    |
+    | Parameters: int mid               - The id of the member making 
+    |                                     a purchase.
+    |             int lid               - The id of the lesson to be
+    |                                     purchased.
+    |             int totalSessions     - The number of sessions being 
+    |                                     purchased.
+    |             int remainingSessions - The remaining number of sessions
+    |                                     that can be used.
+    |
+    | Returns: int or error - the id of a created record unless an error
+    |                         occurs.
+    *-------------------------------------------------------------------*/
     public int addLessonPurchase(int mid, int lid, int totalSessions, int remaining) throws SQLException {
         int id = getNextId("LessonPurchase", "jeffreylayton");
         String sql = "insert into jeffreylayton.LessonPurchase(order_id, member_id, lesson_id, total_sessions, remaining_sessions) values (?, ?, ?, ?, ?)"; 
@@ -557,6 +627,23 @@ public class DBController {
         return id;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: adjustLessonPurchase(int oid, int remaining)
+    |
+    | Purpose: This method adjusts the remaining sessions of an existing 
+    |          lesson purchase order in the LessonPurchase relation.
+    |
+    | Pre-condition:  The LessonPurchase relation exists and is accessible. 
+    |
+    | Post-condition: The remaining sessions on the lesson have 
+    |                 been changed to the desired amount.
+    |
+    | Parameters: int oid       - The id of the order to adjust.
+    |             int remaining - The remaining number of sessions
+    |                             that can be used.
+    |
+    | Returns: void or error - void unless an error occurs.
+    *-------------------------------------------------------------------*/
     public void adjustLessonPurchase(int oid, int remaining) throws SQLException {
         String sql = "update jeffreylayton.LessonPurchase set remaining_sessions=? where order_id=?";
         try (PreparedStatement stmt = dbconn.prepareStatement(sql)) {
@@ -569,6 +656,22 @@ public class DBController {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: deleteLessonPurchase(int oid)
+    |
+    | Purpose: This method displays all the Lessons, including the
+    |          purchase information, and the instructor information.
+    |
+    | Pre-condition:  The LessonPurchase and Employee relations exist 
+    |                 and are accessible. 
+    |
+    | Post-condition: The member's purchased Lessons are displayed.
+    |
+    | Parameters: int oid - The id of the order to adjust.
+    |
+    | Returns: boolean or error - a boolean if the record is deleted or 
+    |                             an error if one occurs.
+    *-------------------------------------------------------------------*/
     public boolean deleteLessonPurchase(int oid) throws SQLException {
         String checkSql = "select remaining_sessions from jeffreyLayton.LessonPurchase where order_id = ?";
         try (PreparedStatement c = dbconn.prepareStatement(checkSql)) {
@@ -609,6 +712,24 @@ public class DBController {
 
     }
 
+    /*-------------------------------------------------------------------
+    | Method: getLessonsForMember(int mid)
+    |
+    | Purpose: This method deletes the an existing lesson purchase order 
+    |          from the LessonPurchase relation. First, the lesson
+    |          purchase must exist and have a value for remaining sessions
+    |          set to 0. If the condition is met, the order is removed
+    |          from the LessonPurchase relation and a log is added to
+    |          the LessonPurchase_Archive relation.
+    |
+    | Pre-condition:  The LessonPurchase relation exists and is accessible. 
+    |
+    | Post-condition: All Lessons that a user has purchased are displayed.
+    |
+    | Parameters: int mid - The id of the member
+    |
+    | Returns: void or error - void unless an error occurs.
+    *-------------------------------------------------------------------*/
     public void getLessonsForMember(int mid) throws SQLException {
         String sql = """
         select l.lesson_id, e.name as "instructor_name", l.time, sum(lp.total_sessions) as "total_sessions", sum(lp.remaining_sessions) as "remaining_sessions"
