@@ -959,6 +959,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getYearlyProfit()
+    |
+    | Purpose: Function serves to solve query 4 by getting the daily income
+    |          from all properties * an inputted season length (1-365 days)
+    |          and subtracts the total employee salaries.
+    |
+    | Pre-condition: Employee and Property table both are filled
+    |
+    | Post-condition: The estimated profit is printed to stdout
+    |
+    | Parameters: None. Takes user input for years and season length
+    |
+    | Returns: None, ends with the print statement
+    *-------------------------------------------------------------------*/ 
     private void getYearlyProfit(){
         try {
             System.out.print("How many days of the year (max 365) does the ski season last: ");
@@ -980,6 +995,20 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void propertyMenu()
+    |
+    | Purpose: Function serves to display a menu that allows a user to 
+    |          decide what they want to do with the properties table
+    |
+    | Pre-condition: Property table is filled
+    |
+    | Post-condition: The user is taken to the next menu based on their input
+    |
+    | Parameters: None. Takes user input for desired action
+    |
+    | Returns: None, ends by calling another function or going back
+    *-------------------------------------------------------------------*/ 
     private void propertyMenu(){
         System.out.print(
             "\t\tProperties:\n"+
@@ -1000,6 +1029,23 @@ public class SkiResort {
             default -> System.out.println("Invalid choice.\n");
         }
     }
+
+    /*-------------------------------------------------------------------
+    | Method: void addProperty()
+    |
+    | Purpose: Function allows a user to add a Property to the Property Table
+    |          by asking for type and income and generating an ID.
+    |
+    | Pre-condition: Property table is created with propertyID, propety_type,
+    |                and daily_income
+    |
+    | Post-condition: The new property is added to the table
+    |
+    | Parameters: None. Takes user input for type and income
+    |
+    | Returns: None, ends by printing that the property was made and what
+    |          propertyID it has
+    *-------------------------------------------------------------------*/ 
     private void addProperty(){
         System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot \n");
         System.out.print("Propety type: ");String type = in.nextLine();
@@ -1013,6 +1059,22 @@ public class SkiResort {
             System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
+
+    /*-------------------------------------------------------------------
+    | Method: void updatePropertyType()
+    |
+    | Purpose: Allows the user to change what type a property is. If a 
+    |          property is updated to a free lot, the income is changed
+    |          to 0.
+    |
+    | Pre-condition: Property table has a property at the desired ID
+    |
+    | Post-condition: The chosen property has the property_type changed
+    |
+    | Parameters: None. Takes user input for type and propertyID
+    |
+    | Returns: None, ends by printing that the property was updated
+    *-------------------------------------------------------------------*/ 
     private void updatePropertyType(){
         System.out.print("Choose from one of the following property types: lodge, gift shop, rental center, visitor center, ski school, free lot, paid lot \n");
         System.out.print("New Propety type: ");String type = in.nextLine();
@@ -1026,6 +1088,21 @@ public class SkiResort {
             System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
+
+    /*-------------------------------------------------------------------
+    | Method: void updatePropertyIncome()
+    |
+    | Purpose: Allows the user to change what the daily income of a property
+    |          in the Property table is set to
+    |
+    | Pre-condition: Property table has a property at the desired ID
+    |
+    | Post-condition: The chosen property has the daily_income changed
+    |
+    | Parameters: None. Takes user input for daily_income and propertyID
+    |
+    | Returns: None, ends by printing that the property was updated
+    *-------------------------------------------------------------------*/ 
     private void updatePropertyIncome(){
         System.out.print("What propertyID is being updated?: ");int id = readInt();
         System.out.print("New Daily Income: ");int income = readInt();
@@ -1038,6 +1115,21 @@ public class SkiResort {
             System.out.println("Error: " + e.getMessage() + "\n");
         }
     }
+
+    /*-------------------------------------------------------------------
+    | Method: void deletePropery()
+    |
+    | Purpose: Allows the user to delete a property from the Property
+    |          table
+    |
+    | Pre-condition: Property table has a property at the desired ID
+    |
+    | Post-condition: The chosen property is removed from Property
+    |
+    | Parameters: None. Takes user input for propertyID
+    |
+    | Returns: None, ends by printing that the property was removed
+    *-------------------------------------------------------------------*/ 
     private void deleteProperty(){
         System.out.print("What propertyID that you wish to delete?: ");int id = readInt();
 

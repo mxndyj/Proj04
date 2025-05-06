@@ -1336,6 +1336,28 @@ public class DBController {
         return equipmentArchiveID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: int addProperty(String type, int income)
+    |
+    | Purpose: Generates the SQL statement to add a new property to the 
+    |          Property table with property_type type and daily_income income.
+    |          Throws an error if a free lot is attmepted to be made with
+    |          an income that is not 0.
+    |
+    | Pre-condition: type is a valid propety_type and the Property table is
+    |                public.
+    |
+    | Post-condition: A new property with property_type type and 
+    |                 daily_income income is added to Property with a 
+    |                 unique propertyID
+    |
+    | Parameters: String type - String value that will be set to the new
+    |             property_type
+    |             int income - the value for the property daily_income
+    |
+    | Returns: int propetyID -> either the unique propertyID of the added
+    |          property, or -1 if the addition failed
+    *-------------------------------------------------------------------*/
     public int addProperty(String type, int income)throws SQLException,IllegalArgumentException {
         Statement myStmt = dbconn.createStatement();
         if (type == "free lot" && income != 0){
@@ -1353,6 +1375,27 @@ public class DBController {
         return propertyID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: int updatePropertyIncome(int propertyID, int newIncome)
+    |
+    | Purpose: Generates the SQL statement to change the property daily_income
+    |          of the property at propertyID in Property to newIncome. Throws
+    |          an error if the property_type is free lot and the income is
+    |          trying to be changed to something that is not 0
+    |
+    | Pre-condition: propertyID exists in the pubic Property table
+    |
+    | Post-condition: The property at propetyID now has a daily_income
+    |                 of newIncome
+    |
+    | Parameters: int propertyID - the ID for the property in Property
+    |             that is set to be updated.
+    |             int newIncome - the new value for the property
+    |                             daily_income
+    |
+    | Returns: propetyID -> either the same as the parameter if update was
+    |                       successful, or -1 if the update failed
+    *-------------------------------------------------------------------*/
     public int updatePropetyIncome(int propertyID, int newIncome) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         String checkPID = "select property_type from ascherer.Property where propertyID=%d";
@@ -1379,6 +1422,26 @@ public class DBController {
         return propertyID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: int updatePropertyType(int propertyID, String newType)
+    |
+    | Purpose: Generates the SQL statement to change the property type
+    |          of the property at propertyID in Property to newType.
+    |          If newType == free lot, update income to 0
+    |
+    | Pre-condition: propertyID exists in the pubic Property table and
+    |                newType is a valid property_type
+    |
+    | Post-condition: The property at propetyID now has a property_type
+    |                 of newType
+    |
+    | Parameters: int propertyID - the ID for the property in Property
+    |             that is set to be updated.
+    |             String newType - String value for the property_type
+    |
+    | Returns: propetyID -> either the same as the parameter if update was
+    |                       successful, or -1 if the update failed
+    *-------------------------------------------------------------------*/ 
     public int updatePropertyType(int propertyID, String newType) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         String checkPID = "select property_type from ascherer.Property where propertyID=%d";
@@ -1400,6 +1463,23 @@ public class DBController {
         return propertyID;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: int deleteProperty(int propertyID)
+    |
+    | Purpose: Generates the SQL statement to delete the property at 
+    |          propertyID from the Property table and runs it.
+    |
+    | Pre-condition: propertyID exists in the Property table and that 
+    |                table is set to public
+    |
+    | Post-condition: propertyID no longer exists in Property
+    |
+    | Parameters: int propertyID - the ID for the property in Property
+    |             that is set to be deleted.
+    |
+    | Returns: numRowsAffected -> 1 if deletion was successful, 0 if 
+    |          the deletion failed
+    *-------------------------------------------------------------------*/ 
     public int deleteProperty(int propertyID) throws SQLException{
         Statement myStmt = dbconn.createStatement();
         String checkPID = "select property_type from ascherer.Property where propertyID=%d";
@@ -1415,6 +1495,27 @@ public class DBController {
         return numRowsAffected;
     }
 
+    /*-------------------------------------------------------------------
+    | Method: int getYearlyProfit(int season, int years)
+    |
+    | Purpose: Generates and returns the value of Query 4 to get the 
+    |          estimated yearly profits for a given number of years. 
+    |          Does so by multiplying the daily_income of all properties 
+    |          in the Property table by season and subtracting the total 
+    |          salaries from the Employee table, then multiplying that by years.
+    |
+    | Pre-condition: Both the Property and Employee table have the necessay
+    |                relations and are set to public for selecting
+    |
+    | Post-condition: The profit has been calculated and will be printed by
+    |                 getYearlyProfit() in SkiResort
+    |
+    | Parameters: int season - how many days out of 365 the ski season lasts
+    |             to determine how long the daily_income should be totaled.
+    |             int years - how many years of profit to look at
+    |
+    | Returns: int profit
+    *-------------------------------------------------------------------*/ 
     public int getYearlyProfit(int season, int years) throws SQLException{
         int profit = 0;
 
