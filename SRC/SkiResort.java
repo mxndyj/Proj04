@@ -285,6 +285,20 @@ public class SkiResort {
     }
 
 
+    /*-------------------------------------------------------------------
+    | Method: void purchaseLessonMenu()
+    |
+    | Purpose: Function serves to display a menu that allows a user to 
+    |          decide what they want to do with the LessonsPurchases table.
+    |
+    | Pre-condition: The LessonPurchase relation exists and is accessible.
+    |
+    | Post-condition: The user is taken to the next menu based on their input
+    |
+    | Parameters: None. Takes user input for desired action
+    |
+    | Returns: None, ends by calling another function or going back
+    *-------------------------------------------------------------------*/ 
     private void purchaseLessonMenu() {
         System.out.print(
             "\t\tLessons:\n"+
@@ -303,6 +317,25 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void addLessonPurchase()
+    |
+    | Purpose: Function first gets user input on the member looking to 
+    |          purchase a lesson and the lesson they'd like to purchase.
+    |          The DBController instance is used to accept inputs and
+    |          interact with the database.
+    |
+    | Pre-condition: db and instance variables are not null and points to a valid
+    |		     class instance.
+    |
+    | Post-condition: The new lesson purchase has been added and the new id has
+    |		          been printed to the user or a helpful error message has
+    |                 been printed.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints out results of attempted record creation.
+    *-------------------------------------------------------------------*/ 
     private void addLessonPurchase() {
         System.out.print("Member ID: "); int mid = readInt();
         System.out.print("Lesson ID: "); int lid = readInt();
@@ -316,6 +349,22 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void adjustLessonPurchase()
+    |
+    | Purpose: Function takes from the user the order id and remaining 
+    |          sessions they would like to update the lesson purchase
+    |          with.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The results of the attempted update have been printed
+    |                 to the user via stdout. 
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints output to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void adjustLessonPurchase() {
         System.out.print("Order ID: "); int oid = readInt();
         System.out.print("Remaining Sessions: "); int remaining = readInt();
@@ -327,6 +376,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void deleteLessonPurchase()
+    |
+    | Purpose: Function takes from the user the order id attempts to delete
+    |          the record from the database.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The results of the attempted deletion have been printed
+    |                 to the user via stdout.
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints output to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void deleteLessonPurchase() {
         System.out.print("Order ID: "); int oid = readInt();
         try {
@@ -337,6 +401,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getLessons()
+    |
+    | Purpose: Function displays a list of all Lesson records from
+    |          the database.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The lessons and their related information are displayed
+    |                 to the user via stdout.
+    |
+    | Parameters: None. 
+    |
+    | Returns: None. Prints output to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void getLessons() {
         try {
             db.getLessons();     
@@ -345,6 +424,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getEmployees()
+    |
+    | Purpose: Function displays a list of all Employee records from
+    |          the database.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The employees and their related information are displayed
+    |                 to the user via stdout.
+    |
+    | Parameters: None. 
+    |
+    | Returns: None. Prints output to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void getEmployees() {
         try {
             db.getEmployees();     
@@ -353,6 +447,21 @@ public class SkiResort {
         }
     }
 
+    /*-------------------------------------------------------------------
+    | Method: void getLessonsForMember()
+    |
+    | Purpose: Function takes from the user the member id of the member
+    |          they'd like to see the purchased lessons of.
+    |
+    | Pre-condition: db and in are not null and points to a valid class instance.
+    |
+    | Post-condition: The lesson data of all lessons purchased by the member
+    |                 are displayed to the user via stdout. 
+    |
+    | Parameters: None. Gets all input from user via stdin.
+    |
+    | Returns: None. Prints output to user via stdout.
+    *-------------------------------------------------------------------*/ 
     private void getLessonsForMember() {
         System.out.print("Member ID: "); int mid = readInt();
         try {

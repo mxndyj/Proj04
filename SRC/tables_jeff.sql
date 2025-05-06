@@ -112,6 +112,36 @@ VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 2, 1, '12:30');
 INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
 VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 3, 0, '14:45');
 
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 1, 1, '09:15');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 2, 0, '10:00');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 3, 1, '10:30');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 1, 0, '11:45');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 2, 1, '13:15');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 3, 0, '15:30');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 1, 1, '16:00');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 2, 0, '17:20');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 3, 1, '18:05');
+
+INSERT INTO jeffreylayton.Lesson (lesson_id, instructor_id, private, time)
+VALUES (jeffreylayton.LESSON_SEQ.NEXTVAL, 1, 0, '19:40');
+
 -- LessonPurchases
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
 VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 5, 1, 5, 5);
@@ -127,5 +157,35 @@ VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 2, 3, 10, 4);
 
 INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
 VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 1, 3, 8, 8);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 3, 4, 6, 6);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 4, 5, 8, 8);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 1, 6, 10, 10);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 2, 7, 12, 9);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 3, 8, 4, 2);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 4, 9, 6, 6);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 5, 4, 8, 7);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 2, 5, 5, 5);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 1, 7, 7, 5);
+
+INSERT INTO jeffreylayton.LessonPurchase (order_id, member_id, lesson_id, total_sessions, remaining_sessions)
+VALUES (jeffreylayton.LESSONPURCHASE_SEQ.NEXTVAL, 3, 2, 3, 3);
 
 commit;
