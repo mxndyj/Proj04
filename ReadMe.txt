@@ -34,11 +34,15 @@ The four required queries are on the Main Menu as "8. Queries".
     4. Update Equipment Size (admin only)
     5. Delete (archive)
 7. Properties
+    1. Add a new property
+    2. Update Property Type
+    3. Update Property Daily Income
+    4. Delete Property
 8. Queries
     1. Get Lessons by Member ID
     2. Get Ski Pass Rides and Rentals
     3. Get Open Intermediate Trials
-    4. Unknown
+    4. Get Yearly Profit
 
 
 --- Workload Distribution ---
@@ -47,6 +51,10 @@ Mandy Jiang:
     - SkiPass, Member, Lift entry operations. [DBController, SKiResort, tables.sql]
     - Design PDF corresponding FDs.
 Alex Scherer:
+    - Property Table, Add, Update (type and income), and Delete Property
+    - Query #4: Finds the total estimated profit for a given (input) amount of years assuming the ski season is a
+given (input) number of days out of 365 by totalling the daily property profits * season days and subtracting the 
+total salary of employees from that.
 Jeffrey Layton:
     - Add, update, or delete a lesson purchase record
     - Query #1: For a given member, list all the ski lessons they have purchased, including the number of remaining
