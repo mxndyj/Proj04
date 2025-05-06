@@ -32,7 +32,8 @@ The four required queries are on the Main Menu as "8. Queries".
     2. Update Equipment Type (admin only)
     3. Update Equipment Name (admin only)
     4. Update Equipment Size (admin only)
-    5. Delete (archive)
+    5. Update equipment Type & Size (admin only)
+    6. Delete (archive)
 7. Properties
     1. Add a new property
     2. Update Property Type
@@ -43,10 +44,19 @@ The four required queries are on the Main Menu as "8. Queries".
     2. Get Ski Pass Rides and Rentals
     3. Get Open Intermediate Trials
     4. Get Yearly Profit
+    5. Display all equipment records
+    6. Display all rental records
+    7. Display all lessons
+    8. Display all employees
 
 
 --- Workload Distribution ---
 Tyler Garfield:
+    - Rental, Equipment, Rental_Archive, Equipment_Archive, Equipment (New Gear) menu, Rental (Gear rental) menu.
+        - Add, update, and delete for Equipment and Rental.
+    - Query two: Given a ski pass ID, find all lift entries and equipment rentals associated with the given ski pass, and for each, print out the lift/equipment name and entrance/rental time.
+    - NOTE: For equipment attribute updates, the required admin password is "1234"; the decision to lock equipment updates behind a password was to address this line in the spec: "The system should allow authorized personnel to make such updates".
+    
 Mandy Jiang:
     - SkiPass, Member, Lift entry operations. [DBController, SKiResort, tables.sql]
     - Design PDF corresponding FDs.
