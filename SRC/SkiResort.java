@@ -1,55 +1,70 @@
+import java.util.Scanner;
 /*=============================================================================
- |   Assignment:  Program #[n]:  [Assignment Title]
- |       Author:  [Your Name (Your E-mail Address)]
- |       Grader:  [Your TA or Section Leader's name]
+ |   Assignment:  Program #04:  Prog04
+ |       Author:  Tyler Garfield (tylergarfield@arizona.edu), 
+ |		  Mandy Jiang (Mandyjiang@arizona.edu), 
+ |		  Jeffrey Layton (jeffreylayton@arizona.edu), 
+ |		  Alex Scherer (ascherer@arizona.edu)
+ |       Grader:  Xinyu Guo & Jianwei Shen
  |
- |       Course:  [Course Number]
+ |       Course:  Database Design
  |   Instructor:  L. McCann
- |     Due Date:  [Due Date and Time]
+ |     Due Date:  May 6th at the beginning of class.
  |
- |  Description:  [Describe the program's goal, IN DETAIL.]
+ |  Description:  This program simulates a real-world database for a ski
+ |		 a  resort that we designed from the ground up. This program
+ |		 allows for the user's interaction with the various components
+ |		 of that database and querying it for information. The components
+ |		 This database includes relations for resort gear, gear rental
+ |		 resort employees, ski lessons, resort members, resort properties
+ |		 lift and trails and lift entries. This program then allows for
+ |		 the manipulation of these various components. This program also
+ |		 allows the user to view the contents of the above relations as
+ |		 well as ask questions such as, what are the lessons a given resort
+ |		 member purchased? Or, what lift rides and rentals are associated with
+ |		 a certain skipass. What is the info for all the intermediate trails?
+ |		 And for a given ski season and year, how much is the resort making?
  |
- |     Language:  [Programming language and version used.]
- | Ex. Packages:  [List names and sources of all external packages
- |                required by this program.]
+ |     Language:  Java 16.
+ | Ex. Packages:  java.Util.Scanner, java.util.ArrayList, java.sql.*
  |                
- | Deficiencies:  [If you know of any problems with the code, provide
- |                details here, otherwise clearly state that you know
- |                of no unsatisfied requirements and no logic errors.]
+ | Deficiencies:  No known deficiencies.
  *===========================================================================*/
 
-import java.util.Scanner;
 
 /*----------------------------------------------------------------------
  ||
- ||  Class [Class Name] 
+ ||  Class SkiResort
  ||
- ||         Author:  [Your Name]
+ ||         Author:  Tyler Garfield, Mandy Jiang, Jeffrey Layton, Alex Scherer
  ||
- ||        Purpose:  [A description of why this class exists.  For what
- ||                   reason was it written?  Which jobs does it perform?]
+ ||        Purpose:  This class is the user-facing interface for interacting with
+ ||		     our ski resort db. This class presents a menu of possible
+ ||		     interactions for our db and then depending upon what
+ ||		     the user inputs the appropriate function is called
+ ||		     after which any needed input parameters are gathered
+ ||		     and the DBController class is then called to actually
+ ||		     do the dirty work.
  ||
- ||  Inherits From:  [If this class is a subclass of another, name it.
- ||                   If not, just say "None."]
+ ||  Inherits From:  Default Object class.
  ||
- ||     Interfaces:  [If any predefined interfaces are implemented by
- ||                   this class, name them.  If not, ... well, you know.]
- ||
- |+-----------------------------------------------------------------------
- ||
- ||      Constants:  [Name all public class constants, and provide a very
- ||                   brief (but useful!) description of each.]
+ ||     Interfaces:  None.
  ||
  |+-----------------------------------------------------------------------
  ||
- ||   Constructors:  [List the names and arguments of all defined
- ||                   constructors.]
+ ||      Constants:  Scanner in - The interface to grab input from the user
+ ||			via stdin.
+ ||		     String sysAdPass - The admin password that is required
+ ||			for privileged operations.
  ||
- ||  Class Methods:  [List the names, arguments, and return types of all
- ||                   public class methods.]
+ |+-----------------------------------------------------------------------
  ||
- ||  Inst. Methods:  [List the names, arguments, and return types of all
- ||                   public instance methods.]
+ ||   Constructors:  Default object constructor.
+ ||
+ ||  Class Methods:  static void main(String[] args) - main method for program.
+ ||
+ ||  Inst. Methods:  None. All instance methods are private as no outside class\
+ ||			should be able to call them.
  ||
  ++-----------------------------------------------------------------------*/
 
