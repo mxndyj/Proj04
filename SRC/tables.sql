@@ -94,11 +94,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE,REFERENCES ON mandyjiang.Trail TO PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE,REFERENCES ON mandyjiang.SkiPass_Archive TO PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE,REFERENCES ON mandyjiang.SkiPass TO PUBLIC;
 GRANT SELECT, INSERT, UPDATE, DELETE,REFERENCES ON mandyjiang.Member TO PUBLIC;
+GRANT SELECT, INSERT, UPDATE, DELETE,REFERENCES ON mandyjiang.PassType TO PUBLIC;
+
 
 
 GRANT SELECT ON mandyjiang.MEMBER_SEQ TO PUBLIC;
 GRANT SELECT ON mandyjiang.SKIPASS_SEQ TO PUBLIC;
 GRANT SELECT ON mandyjiang.SKIPASS_ARCHIVE_SEQ TO PUBLIC;
+
 --skipass and members
 insert into mandyjiang.PassType(type, total_uses, price) VALUES ('1-DAY',  10, 75.00);
 insert into mandyjiang.PassType(type, total_uses, price) VALUES ('2-DAY',  20, 180.00);
