@@ -20,34 +20,80 @@ import java.util.ArrayList;
 
 /*----------------------------------------------------------------------
  ||
- ||  Class [Class Name] 
+ ||  Class DBController
  ||
- ||         Author:  [Your Name]
+ ||         Author:  Tyler Garfield, Mandy Jiang, Jeffrey Layton, Alex Scherer
  ||
- ||        Purpose:  [A description of why this class exists.  For what
- ||                   reason was it written?  Which jobs does it perform?]
+ ||        Purpose:  This class performs all interactions with our database
+ ||                  that means being the class that updates our relations
+ ||                  such as Rental, SkiPass, etc. This class also performs
+ ||                  the required queries for this program, and prints out the
+ ||                  results. One such query is getting all entries and rentals
+ ||                  associated with a given ski pass entry. Essentially any
+ ||                  Interaction with our Ski Resort database takes place here.
  ||
- ||  Inherits From:  [If this class is a subclass of another, name it.
- ||                   If not, just say "None."]
+ ||  Inherits From:  None.
  ||
- ||     Interfaces:  [If any predefined interfaces are implemented by
- ||                   this class, name them.  If not, ... well, you know.]
- ||
- |+-----------------------------------------------------------------------
- ||
- ||      Constants:  [Name all public class constants, and provide a very
- ||                   brief (but useful!) description of each.]
+ ||     Interfaces:  None.
  ||
  |+-----------------------------------------------------------------------
  ||
- ||   Constructors:  [List the names and arguments of all defined
- ||                   constructors.]
+ ||      Constants:  String URL - The URL that indicates the location of
+ ||			our Oracle database system.
+ ||                  Connection dbconn - The connection to the database we
+ ||			are interacting with.
  ||
- ||  Class Methods:  [List the names, arguments, and return types of all
- ||                   public class methods.]
+ |+-----------------------------------------------------------------------
  ||
- ||  Inst. Methods:  [List the names, arguments, and return types of all
- ||                   public instance methods.]
+ ||   Constructors:  DBController(String user,String pass) throws Exception -
+ ||			The constructor attempts to initiate a connection to the
+ ||			database with the given username and password.
+ ||
+ ||  Class Methods:  None.
+ ||
+ ||  Inst. Methods:  Member relation manipulation:
+ ||			addMember(String name,String phone,String email,Stirng dob,String emergency)
+ ||							throws SQLException
+ ||			updateMember(int id,Stirng phone,String email,String emergency)
+ ||							throws SQLException
+ ||			deleteMember(int id) throws SQLException
+ ||		      SkiPass relation manipulation:
+ ||			addPass(int mid,String type,String exp) throws SQLException
+ ||			adjustPassUses(int pid, int uses) throws SQLException
+ ||			deletePass(int pid) throws SQLException
+ ||		      Lift relation manipulation methods:
+ ||			recordLifEntry(int pid,String liftName) throws SQLException
+ ||		      LessonPurchase relation manipulation methods:
+ ||			addLessonPurchase(int mid,int lid, int totalSessions, int remaining)
+ ||							throws SQLException
+ ||			adjustLessonPurchase(int oid,int remaining) throws SQLException
+ ||			deleteLessonPurchase(int oid) throws SQLException
+ ||		      Rental relation manipulation methods:
+ ||			addRentalRecord(int skiPassID,int equipmentID) throws SQLException, IllegalStateException
+ ||			updateRentalTime(int rentalID) throws SQLException
+ ||			returnEquipment(int rentalID) throws throws SQLException, IllegalStateException
+ ||			deleteRentalRecord(int rentalID) throws throws SQLException, IllegalStateException
+ ||		      Equipment relation manipulation methods:
+ ||			addEquipmentRecord(String type, double size, String name) throws SQLException, IllegalStateException
+ ||			deleteEquipmentRecord(int equipmentID) throws SQLException
+ ||			updateEquipmentType(int equipmentID,String newType) throws SQLException
+ ||			updateEquipmentTypeSz(int equipmentID,String newType,double newSz) throws SQLException, IllegalStateException
+ ||			updateEquipmentName(int equipmentID,String equipName) throws SQLException 
+ ||			updateEquipmentSize(int equipmentID,double newSize) throws SQLException, IllegalStateException
+ ||		      Property relation manipulation methods:
+ ||			addProperty(String type, int income) throws SQLException, IllegalArgumentException
+ ||			updatePropertyIncome(int propertyID, int newIncome) throws SQLException
+ ||			updatePropertyType(int propertyID, String newType) throws SQLException
+ ||			deleteProperty(int propertyID) throws SQLException
+ ||		      DB querying methods:
+ ||			getIntermediateTrails() throws SQLException
+ ||			getLessons() throws SQLException
+ ||			getEmployees() throws SQLException
+ ||			getLessonsForMember(int mid) throws SQLException
+ ||			getYearlyProfit(int season, int years) throws SQLException
+ ||			runQueryTwo(int skiPassID) throws SQLException
+ ||			printOutRentals() throws SQLException
+ ||			printOutEquipment() throws SQLException
  ||
  ++-----------------------------------------------------------------------*/
 
