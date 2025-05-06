@@ -791,7 +791,7 @@ public class DBController {
             try (ResultSet rs = p.executeQuery()) {
                 while (rs.next()) {
                     String instructorName = rs.getString("instructor_name");
-                    Date lessonTime = rs.getDate("time");
+                    String lessonTime = rs.getString("time");
                     int totalSessions = rs.getInt("total_sessions");
                     int remainingSessions = rs.getInt("remaining_sessions");
 
