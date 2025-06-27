@@ -52,20 +52,25 @@ The four required queries are on the Main Menu as "8. Queries".
 
 
 --- Workload Distribution ---
+
 Tyler Garfield:
     - Rental, Equipment, Rental_Archive, Equipment_Archive, Equipment (New Gear) menu, Rental (Gear rental) menu.
         - Add, update, and delete for Equipment and Rental.
     - Query two: Given a ski pass ID, find all lift entries and equipment rentals associated with the given ski pass, and for each, print out the lift/equipment name and entrance/rental time.
     - NOTE: For equipment attribute updates, the required admin password is "1234"; the decision to lock equipment updates behind a password was to address this line in the spec: "The system should allow authorized personnel to make such updates".
     
+    
 Mandy Jiang:
     - SkiPass, Member, Lift entry operations. [DBController, SKiResort, tables.sql]
     - Design PDF corresponding FDs.
+    
 Alex Scherer:
     - Property Table, Add, Update (type and income), and Delete Property
     - Query #4: Finds the total estimated profit for a given (input) amount of years assuming the ski season is a
 given (input) number of days out of 365 by totalling the daily property profits * season days and subtracting the 
 total salary of employees from that.
+
+
 Jeffrey Layton:
     - Add, update, or delete a lesson purchase record
     - Query #1: For a given member, list all the ski lessons they have purchased, including the number of remaining
